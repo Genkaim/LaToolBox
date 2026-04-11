@@ -2334,13 +2334,18 @@ function buildToolPanel(id){
 // ============================================================
 // HUB PAGE
 // ============================================================
+function scrollToTop2(){
+  const el=document.getElementById('main');
+  el.scrollTo?el.scrollTo({top:0,behavior:'smooth'}):(el.scrollTop=0);
+  window.scrollTo&&window.scrollTo({top:0});
+}
 function showHub(){
   if(location.hash!=='#hub'){
     location.hash='hub';
   } else {
     renderHub();
   }
-  scrollToTop();
+  scrollToTop2();
 }
 
 function renderHub(){
