@@ -86,7 +86,7 @@ body{
   background:#f4f4f4;
   border-right:1px solid var(--border);
   overflow-y:auto;
-  padding:12px 0;
+  padding:7px 0;
   flex-shrink:0;
 }
 .cat-header{
@@ -235,7 +235,7 @@ font-weight:500;
 }
 
 /* ===== RESULTS ===== */
-#results{margin-top:20px}
+#results{margin-top:20px;max-width:860px}
 .result-block{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--r);padding:18px;margin-bottom:14px;
@@ -551,7 +551,7 @@ font-weight:500;
 /* Hub sidebar btn */
 .hub-sidebar-btn{
   display:block;width:calc(100% - 20px);
-  margin:8px 10px 4px;
+  margin:4px 10px 4px;
   padding:9px 14px;
   background:linear-gradient(135deg,rgba(61,61,61,.1),rgba(83,83,83,.08));
   border:1px solid var(--border2);
@@ -571,6 +571,43 @@ font-weight:500;
   background:rgba(106, 0, 0, 0);
 }
 #overlay.visible{display:block}
+
+/* ===== HISTORY ===== */
+.hist-empty{
+  text-align:center;color:var(--text2);
+  font-size:.88rem;padding:40px 0;
+}
+.hist-entry{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:10px;overflow:hidden;
+}
+.hist-entry-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.hist-entry-header:hover{background:var(--surface2)}
+.hist-entry-left{display:flex;align-items:center;gap:10px}
+.hist-entry-tool{
+  font-size:.78rem;font-weight:600;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--accent);
+}
+.hist-entry-time{font-size:.75rem;color:var(--text2)}
+.hist-entry-toggle{font-size:.8rem;color:var(--text2);flex-shrink:0}
+.hist-entry-body{
+  display:none;
+  border-top:1px solid var(--border);
+  padding:14px;
+}
+.hist-entry-body.open{display:block}
+.hist-clear-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:6px;
+  background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.25);
+  color:var(--red);cursor:pointer;font-size:.82rem;
+  font-family:'IBM Plex Sans',sans-serif;transition:all .15s;
+}
+.hist-clear-btn:hover{background:rgba(224,82,82,.15)}
 </style>
 </head>
 <body>
@@ -579,18 +616,116 @@ font-weight:500;
 <div id="header">
   <div class="logo" onclick="showHub()">
     <div class="logo-icon">
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- left bracket -->
-        <path d="M13 5 L9 5 L9 31 L13 31" stroke="#ffb13b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <!-- right bracket -->
-        <path d="M23 5 L27 5 L27 31 L23 31" stroke="#243448" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <!-- λ symbol -->
-        <text x="18" y="23" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#ffb13b">λ</text>
-      </svg>
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="755.84003"
+   height="755.84003"
+   viewBox="0 0 755.84003 755.84003"
+   sodipodi:docname="page1_15902207972998808273.pdf"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath5">
+      <path
+         d="M 0,0 H 566.88 V 566.88 H 0 Z"
+         transform="translate(-343.47731,-212.7553)"
+         id="path5" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath7">
+      <path
+         d="M 0,0 H 566.88 V 566.88 H 0 Z"
+         transform="translate(-331.24261,-312.85271)"
+         id="path7" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath9">
+      <path
+         d="M 0,0 H 566.88 V 566.88 H 0 Z"
+         transform="translate(-398.98211,-302.02041)"
+         id="path9" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:page
+       x="0"
+       y="0"
+       inkscape:label="1"
+       id="page1"
+       width="755.84003"
+       height="755.84003"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <g
+     id="g1"
+     inkscape:groupmode="layer"
+     inkscape:label="1">
+    <g
+       id="g2">
+      <g
+         id="layer-MC0">
+        <path
+           id="path3"
+           d="M 0,0.005 H 566.875 V 566.881 H 0 Z"
+           style="fill:#ffe2c5;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           transform="matrix(1.3333333,0,0,-1.3333333,0,755.84)" />
+      </g>
+    </g>
+    <g
+       id="g3">
+      <path
+         id="path4"
+         d="m 0,0 h -196.694 l 4.8,14.106 h 10.192 c 11.83,0 19.48,1.958 22.949,5.875 4.154,4.458 10.194,18.335 18.121,41.629 l 37.312,109.641 c 7.512,22.069 10.782,34.972 9.811,38.71 -0.95,3.097 -3.526,5.023 -7.73,5.779 -0.907,0.211 -5.381,0.317 -13.423,0.317 h -8.504 l 4.8,14.106 H -4.225 L -9.026,216.057 H -22.25 -31.7 c -1.996,0 -3.905,-0.115 -5.725,-0.344 -3.724,-0.727 -6.971,-2.492 -9.741,-5.295 -3.834,-4.207 -9.479,-17.263 -16.933,-39.167 l -39.72,-116.726 c -2.527,-7.418 -4.555,-13.378 -6.086,-17.879 -1.44,-4.229 -2.274,-6.93 -2.499,-8.101 -0.853,-3.118 -0.835,-5.765 0.053,-7.94 1.735,-4.333 9.985,-6.499 24.75,-6.499 h 17.213 c 11.109,0 19.538,0.539 25.286,1.618 7.487,1.766 15.042,5.814 22.664,12.143 8.035,6.645 18.822,20.127 32.361,40.446 l 2.801,4.183 h 13.778 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         transform="matrix(1.3333333,0,0,-1.3333333,457.96973,472.16627)"
+         clip-path="url(#clipPath5)" />
+    </g>
+    <g
+       id="g5">
+      <path
+         id="path6"
+         d="M 0,0 -65.05,-87.289 H 5.693 Z M -74.356,-101.395 -93.1,-124.096 c -8.243,-12.314 -13.368,-21.417 -15.375,-27.308 -1.695,-4.989 -1.284,-9.025 1.231,-12.109 2.516,-3.084 6.6,-4.626 12.251,-4.626 h 4.79 l -4.8,-14.105 h -72.356 l 4.628,13.6 c 12.977,1.932 23.228,6.63 30.754,14.095 1.57,1.623 3.255,3.38 5.056,5.271 1.801,1.89 3.23,3.622 4.287,5.195 1.724,2.416 3.589,4.878 5.596,7.386 2.007,2.509 4.426,5.707 7.257,9.596 1.907,1.638 6.954,8.323 15.143,20.056 L 22.572,47.574 h 11.133 l 15.799,-193.947 c 0.348,-8.056 2.038,-13.846 5.069,-17.369 1.731,-2.15 7.431,-3.737 17.1,-4.762 l -4.677,-13.74 H -26.62 l 4.8,14.105 h 12.552 c 9.856,0 15.767,2.891 17.735,8.671 0.498,1.469 0.553,5.055 0.166,10.757 l -3.618,47.316 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         transform="matrix(1.3333333,0,0,-1.3333333,441.6568,338.70307)"
+         clip-path="url(#clipPath7)" />
+    </g>
+    <g
+       id="g7">
+      <path
+         id="path8"
+         d="m 0,0 8.25,0.665 2.483,-30.795 -8.25,-0.665 -0.136,1.687 c 2.344,0.599 3.9,1.225 4.667,1.878 0.675,0.604 1.085,1.4 1.228,2.389 0.044,0.222 0.056,0.556 0.035,1.004 -0.021,0.448 -0.06,1.024 -0.117,1.729 l -0.362,4.496 -21.19,-1.708 c -3.153,-0.255 -5.021,-0.587 -5.605,-0.998 -0.518,-0.366 -0.711,-1.362 -0.58,-2.987 l 0.159,-1.98 -1.961,-0.159 -1.306,16.198 1.961,0.158 0.164,-2.027 c 0.132,-1.638 0.461,-2.563 0.987,-2.774 0.691,-0.366 2.61,-0.422 5.756,-0.168 l 21.19,1.708 -0.476,5.904 C 6.749,-4.603 6.03,-3.416 4.74,-2.883 3.59,-2.405 2.062,-2.082 0.154,-1.915 Z m -10.432,-39.355 c -5.711,-0.461 -8.413,-2.589 -8.107,-6.384 0.16,-1.99 0.945,-3.391 2.353,-4.202 1.408,-0.811 3.634,-1.094 6.676,-0.849 5.772,0.465 8.504,2.612 8.195,6.439 -0.306,3.796 -3.345,5.461 -9.117,4.996 m -0.245,4.796 c 2.992,0.241 5.569,-0.557 7.73,-2.395 2.189,-1.863 3.403,-4.274 3.642,-7.235 0.238,-2.956 -0.576,-5.531 -2.444,-7.725 -1.867,-2.195 -4.278,-3.411 -7.234,-3.649 -3.109,-0.251 -5.746,0.545 -7.911,2.387 -2.127,1.809 -3.313,4.236 -3.559,7.282 -0.243,3.012 0.542,5.601 2.353,7.765 1.842,2.129 4.316,3.319 7.423,3.57 m 2.173,-28.719 c -5.71,-0.46 -8.412,-2.588 -8.106,-6.384 0.16,-1.99 0.945,-3.39 2.353,-4.202 1.408,-0.811 3.633,-1.094 6.675,-0.848 5.773,0.465 8.505,2.611 8.196,6.439 -0.306,3.796 -3.345,5.461 -9.118,4.995 m -0.244,4.796 c 2.992,0.242 5.569,-0.557 7.729,-2.395 2.19,-1.862 3.404,-4.274 3.642,-7.235 0.239,-2.956 -0.576,-5.531 -2.443,-7.725 -1.867,-2.194 -4.279,-3.41 -7.235,-3.649 -3.108,-0.25 -5.745,0.546 -7.91,2.388 -2.127,1.809 -3.313,4.236 -3.559,7.281 -0.243,3.013 0.541,5.602 2.353,7.766 1.842,2.129 4.316,3.319 7.423,3.569 m -0.526,-30.669 c -2.503,-0.202 -3.914,-0.406 -4.232,-0.612 -0.451,-0.298 -0.632,-1.007 -0.542,-2.126 l 0.081,-0.995 -1.962,-0.158 -0.888,11.017 1.961,0.158 0.092,-1.136 c 0.079,-0.978 0.272,-1.593 0.581,-1.844 0.308,-0.251 1.017,-0.332 2.127,-0.243 l 21.006,1.694 c 1.681,0.136 2.76,0.285 3.235,0.45 0.495,0.288 0.696,1.01 0.603,2.165 l -0.065,0.807 1.94,0.157 0.058,-0.713 c 0.042,-0.521 0.132,-1.098 0.271,-1.731 0.139,-0.634 0.328,-1.405 0.566,-2.314 0.078,-0.232 0.155,-0.463 0.232,-0.69 0.076,-0.228 0.198,-0.48 0.365,-0.757 l 0.086,-1.072 z m 15.44,-22.891 -1.99,-0.161 c -0.202,1.621 -1.441,3.432 -3.719,5.433 -0.039,0.113 -0.125,0.227 -0.26,0.342 -0.134,0.115 -0.327,0.278 -0.577,0.492 -0.243,0.321 -0.557,0.631 -0.94,0.93 l -1.021,1.199 -7.3,-7.104 c -0.407,-0.446 -0.757,-0.81 -1.048,-1.091 -0.292,-0.281 -0.487,-0.547 -0.588,-0.796 -0.631,-0.745 -0.91,-1.566 -0.838,-2.466 l -2.009,-0.162 -0.815,10.106 1.993,0.16 c 0.155,-1.528 0.423,-2.276 0.803,-2.246 0.169,0.014 0.395,0.14 0.677,0.377 0.049,0.121 0.461,0.511 1.236,1.169 l 5.307,4.891 -0.571,0.348 -2.596,-0.209 c -2.694,-0.217 -4.169,-0.417 -4.426,-0.6 -0.453,-0.287 -0.641,-0.91 -0.563,-1.871 l 0.05,-0.619 -2.01,-0.162 -0.835,10.36 2.009,0.162 0.096,-1.183 c 0.083,-1.038 0.3,-1.655 0.65,-1.85 0.282,-0.215 0.998,-0.276 2.148,-0.183 l 21.52,1.735 c 1.097,0.088 1.8,0.198 2.11,0.33 0.713,0.332 1.027,1.025 0.942,2.08 l -0.065,0.807 2.034,0.164 0.058,-0.713 c 0.071,-0.888 0.343,-2.173 0.816,-3.854 0.087,-0.283 0.166,-0.525 0.238,-0.727 0.071,-0.202 0.194,-0.465 0.37,-0.789 l 0.084,-1.053 -20.712,-1.654 1.453,-1.037 c 2.559,-2.823 4.258,-4.201 5.096,-4.133 0.386,0.031 0.563,0.627 0.532,1.787 l 1.986,0.16 z m 9.423,-3.998 c 0.759,0.061 1.44,-0.148 2.044,-0.626 0.604,-0.479 0.941,-1.151 1.011,-2.016 0.058,-0.725 -0.17,-1.4 -0.683,-2.024 -0.514,-0.624 -1.151,-0.966 -1.913,-1.028 -0.792,-0.063 -1.499,0.17 -2.123,0.7 -0.623,0.531 -0.964,1.16 -1.023,1.889 -0.064,0.794 0.171,1.494 0.704,2.1 0.533,0.606 1.194,0.941 1.983,1.005 m -22.157,-7.18 c -2.474,-0.199 -3.872,-0.402 -4.192,-0.609 -0.421,-0.266 -0.588,-0.942 -0.501,-2.028 l 0.081,-0.995 -2.01,-0.162 -0.888,11.018 2.009,0.162 0.099,-1.229 c 0.08,-0.987 0.26,-1.605 0.54,-1.855 0.28,-0.249 0.973,-0.33 2.078,-0.241 l 8.073,0.651 c 2.312,0.187 3.639,0.4 3.98,0.639 0.432,0.291 0.601,1.015 0.508,2.171 l -0.088,1.088 1.932,0.156 c 0.307,-1.521 0.589,-2.796 0.846,-3.825 0.258,-1.03 0.597,-1.949 1.017,-2.759 l 0.088,-1.088 z m 12.471,-10.648 -11.306,-0.912 c -2.13,-0.171 -3.53,-0.474 -4.2,-0.908 -0.67,-0.433 -0.969,-1.099 -0.896,-1.998 0.072,-0.893 0.806,-1.798 2.203,-2.715 l -0.664,-1.327 c -2.587,0.953 -3.982,2.686 -4.185,5.199 -0.18,2.234 0.564,3.878 2.234,4.93 0.965,0.55 2.923,0.945 5.875,1.183 l 10.592,0.854 -0.231,2.863 1.983,0.16 c 0.37,-3.005 2.553,-4.681 6.547,-5.027 l 0.134,-1.65 -6.077,-0.49 0.481,-5.961 -2.01,-0.162 z"
+         style="fill:#e69300;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         transform="matrix(1.3333333,0,0,-1.3333333,531.97613,353.14613)"
+         clip-path="url(#clipPath9)" />
+    </g>
+  </g>
+</svg>
+
     </div>
     <div>
       <div class="logo-text">线性代数<span>工具箱</span></div>
-      <div class="logo-sub">Linear Algebra Toolbox</div>
+      <div class="logo-sub">Linear Algebra Toolkit</div>
     </div>
   </div>
   <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -601,9 +736,13 @@ font-weight:500;
 <div id="app">
 <!-- SIDEBAR -->
 <div id="sidebar">
+  <button class="hub-sidebar-btn" id="history-sidebar-btn" onclick="showHistory()">
+    <span>🕘</span><span>历史记录</span>
+  </button>
   <button class="hub-sidebar-btn" id="hub-sidebar-btn" onclick="showHub()">
     <span>⊞</span><span>工具聚合页</span>
   </button>
+  <div style="border-top:1px solid var(--border);margin:6px 0 2px;margin-top:12px;"></div>
   <div class="cat-header">基础运算</div>
   <button class="tool-btn" onclick="showTool('det')">行列式计算</button>
   <button class="tool-btn" onclick="showTool('inverse')">逆矩阵</button>
@@ -634,6 +773,7 @@ font-weight:500;
   <div class="cat-header">多项式</div>
   <button class="tool-btn" onclick="showTool('polydiv')">带余除法</button>
   <button class="tool-btn" onclick="showTool('polygcd')">辗转相除法</button>
+
 </div>
 
 <!-- MAIN -->
@@ -2282,6 +2422,66 @@ function polyGcd(a,b){
 // ============================================================
 let activeTool=null;
 let activeCell=null;
+const toolStateCache={};
+
+// 保存当前工具面板的所有输入状态（含计算结果）
+function saveToolState(toolId){
+  if(!toolId)return;
+  const toolArea=document.getElementById('tool-area');
+  if(!toolArea)return;
+  const state={inputs:{},selects:{},results:''};
+  toolArea.querySelectorAll('input[id]').forEach(el=>{state.inputs[el.id]=el.value;});
+  toolArea.querySelectorAll('select[id]').forEach(el=>{state.selects[el.id]=el.value;});
+  const resultsEl=document.getElementById('results');
+  if(resultsEl)state.results=resultsEl.innerHTML;
+  toolStateCache[toolId]=state;
+}
+
+// 恢复工具面板的已保存状态
+// 正确顺序：① 恢复 select 尺寸 → ② 触发 rebuild 生成正确数量的格子 → ③ 恢复格子数值 → ④ 恢复结果 + 关闭输入法
+function restoreToolState(toolId){
+  const state=toolStateCache[toolId];
+  if(!state)return;
+
+  // ① 恢复 select（尺寸选择器）
+  Object.entries(state.selects).forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(el)el.value=val;
+  });
+
+  // ② 触发对应工具的 rebuild，使格子数量与 select 一致
+  const rebuildMap={
+    det:      ()=>rebuildDetInput(),
+    inverse:  ()=>rebuildInvInput(),
+    rank:     ()=>rebuildRankInput(),
+    ref:      ()=>rebuildRefInput(),
+    rref:     ()=>rebuildRrefInput(),
+    nonhom:   ()=>rebuildNonhomInput(),
+    hom:      ()=>rebuildHomInput(),
+    matadd:   ()=>rebuildMaddInput(),
+    matmul:   ()=>rebuildMmulInput(),
+    scalarmul:()=>rebuildSmulInput(),
+    eigen:    ()=>rebuildEigenInput(),
+    diag:     ()=>rebuildDiagInput(),
+    pinvap:   ()=>rebuildPinvInput(),
+    trans:    ()=>rebuildTransInput(),
+    quadform: ()=>rebuildQfInput(),
+    polydiv:  ()=>{rebuildPolyInput('pdiv-f');rebuildPolyInput('pdiv-g');},
+    polygcd:  ()=>{rebuildPolyInput('pgcd-f');rebuildPolyInput('pgcd-g');},
+  };
+  if(rebuildMap[toolId])rebuildMap[toolId]();
+
+  // ③ 恢复所有输入格子的数值
+  Object.entries(state.inputs).forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(el)el.value=val;
+  });
+
+  // ④ 恢复计算结果 + 确保输入法（numpad）关闭
+  const resultsEl=document.getElementById('results');
+  if(resultsEl&&state.results)resultsEl.innerHTML=state.results;
+  hideNumpad();
+}
 
 function showTool(toolId){
   if(location.hash!=='#'+toolId){
@@ -2289,20 +2489,26 @@ function showTool(toolId){
   } else {
     renderTool(toolId);
   }
+  scrollToTop2();
 }
 
 function renderTool(toolId){
+  // 在销毁面板前保存当前工具状态
+  saveToolState(activeTool);
+
   activeTool=toolId;
   document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tool-btn').forEach(b=>{
     if(b.getAttribute('onclick')===`showTool('${toolId}')`)b.classList.add('active');
   });
   document.getElementById('hub-sidebar-btn').classList.remove('active');
+  document.getElementById('history-sidebar-btn').classList.remove('active');
   document.getElementById('welcome').style.display='none';
   const toolArea=document.getElementById('tool-area');
   toolArea.style.display='block';
   toolArea.innerHTML=buildToolPanel(toolId);
-  document.getElementById('results').innerHTML='';
+  // 恢复该工具的已保存状态（若有，含结果和numpad关闭）
+  restoreToolState(toolId);
   setupNumpadListeners();
   closeSidebar();
   document.getElementById('main').scrollTop=0;
@@ -2348,9 +2554,100 @@ function showHub(){
   scrollToTop2();
 }
 
-function renderHub(){
+// ============================================================
+// HISTORY
+// ============================================================
+const TOOL_LABELS={
+  det:'行列式',inverse:'逆矩阵',rank:'矩阵的秩',ref:'REF',rref:'RREF',
+  nonhom:'非齐次方程组',hom:'齐次方程组',matadd:'矩阵加减',matmul:'矩阵乘法',
+  scalarmul:'数乘',eigen:'特征值',diag:'对角化',pinvap:'P⁻¹AP',
+  trans:'过渡矩阵',quadform:'二次型',polydiv:'带余除法',polygcd:'最大公因式',
+};
+// 从 localStorage 加载历史，刷新后保留
+const HIST_KEY='linalg_history';
+function loadHistory(){
+  try{const d=localStorage.getItem(HIST_KEY);return d?JSON.parse(d):[];}catch(e){return [];}
+}
+function saveHistory(){
+  try{localStorage.setItem(HIST_KEY,JSON.stringify(calcHistory));}catch(e){}
+}
+const calcHistory=loadHistory();
+
+function addToHistory(toolId,resultHTML,stepsHTML){
+  if(!toolId)return;
+  const now=new Date();
+  const timeStr=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  calcHistory.unshift({toolId,label:TOOL_LABELS[toolId]||toolId,time:timeStr,resultHTML,stepsHTML});
+  if(calcHistory.length>100)calcHistory.pop();
+  saveHistory();
+}
+
+function showHistory(){
+  saveToolState(activeTool);
   activeTool=null;
   document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('hub-sidebar-btn').classList.remove('active');
+  document.getElementById('history-sidebar-btn').classList.add('active');
+  document.getElementById('welcome').style.display='none';
+  const toolArea=document.getElementById('tool-area');
+  toolArea.style.display='block';
+  toolArea.innerHTML=buildHistoryPanel();
+  document.getElementById('results').innerHTML='';
+  closeSidebar();
+  document.getElementById('main').scrollTop=0;
+}
+
+function buildHistoryPanel(){
+  let html=`<div class="tool-panel" style="max-width:860px">
+    <div class="panel-title" data-icon="🕘">历史记录</div>
+    <div class="panel-desc">本次会话内的计算记录，共 ${calcHistory.length} 条</div>`;
+  if(calcHistory.length===0){
+    html+=`<div class="hist-empty">暂无计算记录<br>完成一次计算后将自动保存</div>`;
+  } else {
+    html+=`<div style="margin-bottom:12px">
+      <button class="hist-clear-btn" onclick="clearHistory()">🗑 清空记录</button>
+    </div>`;
+    calcHistory.forEach((entry,i)=>{
+      html+=`<div class="hist-entry">
+        <div class="hist-entry-header" onclick="toggleHistEntry(${i})">
+          <div class="hist-entry-left">
+            <span class="hist-entry-tool">${entry.label}</span>
+            <span class="hist-entry-time">${entry.time}</span>
+          </div>
+          <span class="hist-entry-toggle" id="hist-toggle-${i}">▶</span>
+        </div>
+        <div class="hist-entry-body" id="hist-body-${i}">
+          ${entry.resultHTML?`<div class="result-block" style="margin-bottom:10px"><div class="result-title">计算结果</div>${entry.resultHTML}</div>`:''}
+          <div class="result-block"><div class="result-title">解题步骤</div>
+            <div class="steps-container">${entry.stepsHTML}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  html+=`</div>`;
+  return html;
+}
+
+function toggleHistEntry(i){
+  const body=document.getElementById(`hist-body-${i}`);
+  const toggle=document.getElementById(`hist-toggle-${i}`);
+  if(!body)return;
+  const open=body.classList.toggle('open');
+  toggle.textContent=open?'▼':'▶';
+}
+
+function clearHistory(){
+  calcHistory.length=0;
+  saveHistory();
+  document.getElementById('tool-area').innerHTML=buildHistoryPanel();
+}
+
+function renderHub(){
+  saveToolState(activeTool);
+  activeTool=null;
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('history-sidebar-btn').classList.remove('active');
   document.getElementById('hub-sidebar-btn').classList.add('active');
   document.getElementById('welcome').style.display='none';
   const toolArea=document.getElementById('tool-area');
@@ -2421,6 +2718,13 @@ function buildHubPanel(){
   let html=`<div id="hub-page">
     <div class="hub-title">工具聚合页</div>
     <div class="hub-subtitle">点击下方工具卡片快速跳转，共 ${total} 个工具</div>
+    <button class="hub-card" onclick="showHistory()" style="width:100%;flex-direction:row;align-items:center;gap:12px;margin-bottom:18px;border-color:var(--border2)">
+      <div class="hub-card-icon" style="font-size:1.1rem">🕘</div>
+      <div style="text-align:left">
+        <div class="hub-card-name">历史记录</div>
+        <div class="hub-card-desc">查看本次会话的计算历史（${calcHistory.length} 条）</div>
+      </div>
+    </button>
     <div class="hub-grid">`;
 
   for(const cat of cats){
@@ -2955,7 +3259,8 @@ const BOTTOM_BAR=`
   </div>`;
 
 function showResults(stepsHTML,resultHTML=''){
-  document.getElementById('results').innerHTML=`
+  hideNumpad();
+  const html=`
     ${resultHTML?`<div class="result-block"><div class="result-title">计算结果</div>${resultHTML}</div>`:''}
     <div class="result-block">
       <div class="result-title">解题步骤</div>
@@ -2963,7 +3268,9 @@ function showResults(stepsHTML,resultHTML=''){
     </div>
     ${BOTTOM_BAR}
   `;
+  document.getElementById('results').innerHTML=html;
   document.getElementById('main').scrollTo&&document.getElementById('main').scrollTo({top:document.getElementById('results').offsetTop,behavior:'smooth'});
+  addToHistory(activeTool,resultHTML,stepsHTML);
 }
 
 function computeDet(){
