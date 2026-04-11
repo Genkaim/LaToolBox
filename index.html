@@ -50,17 +50,26 @@ body{
 .logo{
   display:flex;align-items:center;gap:10px;
   font-family:'Noto Serif SC',serif;
+  text-decoration:none;
+  cursor:pointer;
 }
 .logo-icon{
-  width:32px;height:32px;
-  background:linear-gradient(135deg,#ffdeac,#ffb13b);
-  border-radius:6px;
+  width:36px;height:36px;
   display:flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:700;color:#000;
-  font-family:'JetBrains Mono',monospace;
+  flex-shrink:0;
 }
-.logo-text{font-size:1.1rem;font-weight:700;color:#ffb13b;letter-spacing:.5px}
-.logo-sub{font-size:.7rem;color:var(--text2);margin-left:4px;font-family:'IBM Plex Sans',sans-serif;font-weight:300}
+.logo-text{
+  font-size:1.05rem;font-weight:700;
+  color:var(--text);letter-spacing:.3px;
+  line-height:1.15;
+}
+.logo-text span{color:#ffb13b}
+.logo-sub{
+  font-size:.65rem;color:var(--text2);
+  font-family:'IBM Plex Sans',sans-serif;font-weight:300;
+  letter-spacing:.5px;text-transform:uppercase;
+  margin-top:1px;
+}
 #menu-toggle{
   display:none;background:none;border:1px solid var(--border2);
   color:var(--text2);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:18px;
@@ -457,43 +466,62 @@ font-weight:500;
 ::-webkit-scrollbar-thumb:hover{background:var(--text2)}
 
 /* ===== HUB PAGE ===== */
+/* ===== HUB PAGE — desktop base ===== */
 #hub-page{max-width:900px}
 .hub-title{
   font-family:'Noto Serif SC',serif;
-  font-size:1.15rem;font-weight:700;color:var(--text);
-  margin-bottom:2px;
+  font-size:1.6rem;font-weight:700;color:var(--text);
+  margin-bottom:4px;
 }
-.hub-subtitle{font-size:.78rem;color:var(--text2);margin-bottom:14px}
-.hub-section{margin-bottom:12px}
+.hub-subtitle{font-size:.88rem;color:var(--text2);margin-bottom:24px}
+.hub-section{margin-bottom:20px}
 .hub-section-label{
-  font-size:.7rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
-  color:#a5a5a5;margin-bottom:6px;
+  font-size:.75rem;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;
+  color:#a5a5a5;margin-bottom:8px;
   display:flex;align-items:center;gap:6px;
   padding-left:2px;
 }
-
 .hub-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
 }
+.hub-section-label{grid-column:1/-1}
 .hub-card{
   background:var(--surface);border:1px solid var(--border);
-  border-radius:6px;padding:8px 12px;
-  cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;gap:8px;
+  border-radius:var(--r);padding:14px 16px;
+  cursor:pointer;transition:all .18s;
+  display:flex;flex-direction:column;gap:6px;
   text-align:left;
 }
 .hub-card:hover{
   border-color:var(--accent);
   background:rgba(82,82,82,.08);
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  transform:translateY(-1px);
+  box-shadow:0 4px 16px rgba(0,0,0,.07);
 }
-.hub-card-icon{font-size:.95rem;line-height:1;flex-shrink:0;color:var(--text2)}
+.hub-card-icon{font-size:1.3rem;line-height:1;color:var(--text2)}
 .hub-card-name{
-  font-size:.82rem;font-weight:500;color:var(--text);
+  font-size:.88rem;font-weight:600;color:var(--text);
   font-family:'IBM Plex Sans',sans-serif;
-  line-height:1.2;
+  line-height:1.3;
 }
-.hub-card-desc{display:none}
+.hub-card-desc{font-size:.75rem;color:var(--text2);line-height:1.4}
+
+/* ===== HUB PAGE — mobile ===== */
+@media(max-width:700px){
+  .hub-title{font-size:1.1rem;margin-bottom:2px}
+  .hub-subtitle{font-size:.75rem;margin-bottom:12px}
+  .hub-section{margin-bottom:10px}
+  .hub-section-label{font-size:.68rem;margin-bottom:5px}
+  .hub-grid{grid-template-columns:repeat(2,1fr);gap:5px}
+  .hub-card{
+    flex-direction:row;align-items:center;
+    padding:7px 10px;gap:7px;border-radius:6px;
+  }
+  .hub-card:hover{transform:none}
+  .hub-card-icon{font-size:.9rem;flex-shrink:0}
+  .hub-card-name{font-size:.8rem;font-weight:500}
+  .hub-card-desc{display:none}
+}
 
 /* ===== TOOL BOTTOM BUTTONS ===== */
 .tool-bottom-bar{
@@ -549,10 +577,19 @@ font-weight:500;
 
 <!-- HEADER -->
 <div id="header">
-  <div class="logo">
-    <div class="logo-icon">LA</div>
+  <div class="logo" onclick="showHub()">
+    <div class="logo-icon">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- left bracket -->
+        <path d="M13 5 L9 5 L9 31 L13 31" stroke="#ffb13b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- right bracket -->
+        <path d="M23 5 L27 5 L27 31 L23 31" stroke="#243448" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- λ symbol -->
+        <text x="18" y="23" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#ffb13b">λ</text>
+      </svg>
+    </div>
     <div>
-      <div class="logo-text">线性代数工具箱</div>
+      <div class="logo-text">线性代数<span>工具箱</span></div>
       <div class="logo-sub">Linear Algebra Toolbox</div>
     </div>
   </div>
@@ -2247,29 +2284,25 @@ let activeTool=null;
 let activeCell=null;
 
 function showTool(toolId){
+  if(location.hash!=='#'+toolId){
+    location.hash=toolId;
+  } else {
+    renderTool(toolId);
+  }
+}
+
+function renderTool(toolId){
   activeTool=toolId;
-  // Update sidebar active state
   document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tool-btn').forEach(b=>{
     if(b.getAttribute('onclick')===`showTool('${toolId}')`)b.classList.add('active');
   });
   document.getElementById('hub-sidebar-btn').classList.remove('active');
-  // Hide welcome
   document.getElementById('welcome').style.display='none';
   const toolArea=document.getElementById('tool-area');
   toolArea.style.display='block';
-  toolArea.innerHTML=buildToolPanel(toolId)+`
-  <div class="tool-bottom-bar">
-    <button class="btn-back-top" onclick="document.getElementById('main').scrollTop=0">
-      ↑ 回到顶部
-    </button>
-    <button class="btn-to-hub" onclick="showHub()">
-      ⊞ 工具聚合页
-    </button>
-  </div>`;
+  toolArea.innerHTML=buildToolPanel(toolId);
   document.getElementById('results').innerHTML='';
-  
-  // Setup focus listeners for numpad
   setupNumpadListeners();
   closeSidebar();
   document.getElementById('main').scrollTop=0;
@@ -2302,6 +2335,14 @@ function buildToolPanel(id){
 // HUB PAGE
 // ============================================================
 function showHub(){
+  if(location.hash!=='#hub'){
+    location.hash='hub';
+  } else {
+    renderHub();
+  }
+}
+
+function renderHub(){
   activeTool=null;
   document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('hub-sidebar-btn').classList.add('active');
@@ -2370,14 +2411,14 @@ function buildHubPanel(){
     },
   ];
 
+  const total=cats.reduce((s,c)=>s+c.tools.length,0);
   let html=`<div id="hub-page">
     <div class="hub-title">工具聚合页</div>
-    <div class="hub-subtitle">点击下方工具卡片快速跳转，共 ${cats.reduce((s,c)=>s+c.tools.length,0)} 个工具</div>`;
+    <div class="hub-subtitle">点击下方工具卡片快速跳转，共 ${total} 个工具</div>
+    <div class="hub-grid">`;
 
   for(const cat of cats){
-    html+=`<div class="hub-section">
-      <div class="hub-section-label">${cat.label}</div>
-      <div class="hub-grid">`;
+    html+=`<div class="hub-section-label" style="grid-column:1/-1">${cat.label}</div>`;
     for(const t of cat.tools){
       html+=`<button class="hub-card" onclick="showTool('${t.id}')">
         <div class="hub-card-icon">${t.icon}</div>
@@ -2385,10 +2426,9 @@ function buildHubPanel(){
         <div class="hub-card-desc">${t.desc}</div>
       </button>`;
     }
-    html+=`</div></div>`;
   }
 
-  html+=`</div>`;
+  html+=`</div></div>`;
   return html;
 }
 
@@ -2896,6 +2936,18 @@ function clearMatrix(id,dim){
 // ============================================================
 // COMPUTE FUNCTIONS
 // ============================================================
+function scrollToTop(){
+  const el=document.getElementById('main');
+  el.scrollTo?el.scrollTo({top:0,behavior:'smooth'}):(el.scrollTop=0);
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+}
+
+const BOTTOM_BAR=`
+  <div class="tool-bottom-bar">
+    <button class="btn-back-top" onclick="scrollToTop()">↑ 回到顶部</button>
+    <button class="btn-to-hub" onclick="showHub()">⊞ 工具聚合页</button>
+  </div>`;
+
 function showResults(stepsHTML,resultHTML=''){
   document.getElementById('results').innerHTML=`
     ${resultHTML?`<div class="result-block"><div class="result-title">计算结果</div>${resultHTML}</div>`:''}
@@ -2903,8 +2955,9 @@ function showResults(stepsHTML,resultHTML=''){
       <div class="result-title">解题步骤</div>
       <div class="steps-container">${stepsHTML}</div>
     </div>
+    ${BOTTOM_BAR}
   `;
-  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('main').scrollTo&&document.getElementById('main').scrollTo({top:document.getElementById('results').offsetTop,behavior:'smooth'});
 }
 
 function computeDet(){
@@ -3336,7 +3389,18 @@ function closeSidebar(){
 // ============================================================
 // INIT
 // ============================================================
+function navigate(){
+  const hash=location.hash.slice(1);
+  if(!hash||hash==='hub'){
+    renderHub();
+  } else {
+    renderTool(hash);
+  }
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
+  navigate();
+  window.addEventListener('hashchange',navigate);
   setupNumpadListeners();
   document.addEventListener('click',e=>{
     if(!e.target.closest('#numpad')&&
