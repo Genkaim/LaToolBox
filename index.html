@@ -175,6 +175,16 @@ body{
   font-size:.85rem;cursor:pointer;
 }
 .dim-select:focus{outline:none;border-color:var(--accent)}
+.dim-cell{
+  width:36px;height:30px;
+  background:var(--bg2);border:1px solid var(--border2);
+  color:var(--text);border-radius:5px;
+  text-align:center;font-size:.95rem;font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  cursor:pointer;
+}
+.dim-cell:focus{outline:none;border-color:var(--accent);background:var(--surface2)}
+.dim-cell.focused{border-color:var(--accent)}
 
 /* ===== MATRIX INPUT ===== */
 .matrix-input-wrap{
@@ -374,6 +384,9 @@ font-weight:500;
 .np-btn.special{background:var(--bg2);color:#979c85}
 .np-btn.confirm{background:rgba(0, 0, 0, 0.732);color:#ffffff;font-weight:600}
 .np-btn.clear{background:rgba(224,82,82,.15);color:var(--red);border-color:rgba(224,82,82,.3)}
+.np-btn.ans{background:rgba(114,116,54,.12);color:var(--accent);border-color:rgba(114,116,54,.35);font-size:.82rem;font-weight:600;line-height:1.15;height:44px;flex-direction:column;gap:1px}
+.np-btn.ans.active{background:rgba(114,116,54,.25)}
+.np-btn.ans.inactive{opacity:.4;cursor:not-allowed}
 #numpad-close{
   position:absolute;top:-14px;right:14px;
   width:28px;height:28px;border-radius:50%;
@@ -813,11 +826,13 @@ font-weight:500;
   <button class="np-btn" onclick="npInput('1')">1</button>
   <button class="np-btn" onclick="npInput('2')">2</button>
   <button class="np-btn" onclick="npInput('3')">3</button>
-  <button class="np-btn special" onclick="npInput('.')">.</button>
+  <button class="np-btn special" onclick="npPrevCell()">←</button>
   <button class="np-btn special" onclick="npNextCell()">→</button>
-  <button class="np-btn" onclick="npInput('0')" style="grid-column:span 2">0</button>
-  <button class="np-btn special" onclick="npInput('+')" >+</button>
-  <button class="np-btn confirm" onclick="hideNumpad()" style="grid-column:span 2">确认</button>
+  <button class="np-btn ans inactive" id="np-ans-btn" onclick="npAns()">ANS</button>
+  <button class="np-btn" onclick="npInput('0')">0</button>
+  <button class="np-btn special" onclick="npInput('.')">.</button>
+  <button class="np-btn special" onclick="npInput('+')">+</button>
+  <button class="np-btn confirm" onclick="hideNumpad()">确认</button>
 </div>
 
 <script>
@@ -2768,13 +2783,17 @@ function matrixInputHTML(id,rows,cols,label='',isAug=false){
 }
 
 function dimSelector(id,label,rows,cols,onChangeFn,showCols=true){
-  const rOptions=[1,2,3,4,5,6].map(v=>`<option value="${v}"${v===rows?' selected':''}>${v}</option>`).join('');
-  const cOptions=[1,2,3,4,5,6].map(v=>`<option value="${v}"${v===cols?' selected':''}>${v}</option>`).join('');
   let html=`<div class="dim-row"><span class="dim-label">${label}</span>`;
-  html+=`<select class="dim-select" id="${id}-rows" onchange="${onChangeFn}">${rOptions}</select>`;
+  html+=`<input type="text" class="dim-cell" id="${id}-rows" value="${rows}"
+    inputmode="none" autocomplete="off"
+    data-rebuild="${onChangeFn}"
+    onfocus="onCellFocus(this)" onblur="onCellBlur(this)">`;
   if(showCols){
     html+=`<span class="dim-label">×</span>`;
-    html+=`<select class="dim-select" id="${id}-cols" onchange="${onChangeFn}">${cOptions}</select>`;
+    html+=`<input type="text" class="dim-cell" id="${id}-cols" value="${cols}"
+      inputmode="none" autocomplete="off"
+      data-rebuild="${onChangeFn}"
+      onfocus="onCellFocus(this)" onblur="onCellBlur(this)">`;
   }
   html+='</div>';
   return html;
@@ -3280,6 +3299,7 @@ function computeDet(){
   if(err){showResults(`<div class="info-box error">${err}</div>`);return;}
   const stepsHTML=steps.join('\n');
   const resultHTML=`<div class="result-value">det(A) = ${value.toHTML()}</div>`;
+  saveAns(value);
   showResults(stepsHTML,resultHTML);
 }
 
@@ -3291,6 +3311,7 @@ function computeInverse(){
     showResults([`<div class="info-box error">${err}</div>`,...(steps||[])].join(''));
     return;
   }
+  saveAns(result);
   showResults(steps.join('\n'),`<div style="font-size:.85rem;color:var(--text2);margin-bottom:6px">A⁻¹ = </div>${dispMatrix(result)}`);
 }
 
@@ -3299,6 +3320,7 @@ function computeRank(){
   const M=getMatrixValue('rank',rows,cols);
   const{result,steps,pivots}=gaussianElim(M,true);
   const r=pivots.length;
+  saveAns(F(r));
   showResults(steps.join('\n'),`<div class="result-value">rank(A) = ${r}</div>`);
 }
 
@@ -3306,6 +3328,7 @@ function computeRef(){
   const{rows,cols}=getDim('ref');
   const M=getMatrixValue('ref',rows,cols);
   const{result,steps}=gaussianElim(M,true);
+  saveAns(result);
   showResults(steps.join('\n'),`<div style="font-size:.85rem;color:var(--text2);margin-bottom:6px">行阶梯形：</div>${dispMatrix(result)}`);
 }
 
@@ -3313,6 +3336,7 @@ function computeRref(){
   const{rows,cols}=getDim('rref');
   const M=getMatrixValue('rref',rows,cols);
   const{result,steps,pivots}=rref(M,true);
+  saveAns(result);
   showResults(steps.join('\n'),`<div style="font-size:.85rem;color:var(--text2);margin-bottom:6px">最简行阶梯形：</div>${dispMatrix(result,pivots)}`);
 }
 
@@ -3350,6 +3374,7 @@ function computeMatAdd(){
     `${makeStepNum(stepIdx++)}<span>结果矩阵 C = A ${maddOp==='add'?'+':'−'} B</span>`,
     dispMatrix(C)
   ));
+  saveAns(C);
   showResults(steps.join('\n'),`${dispMatrix(C)}`);
 }
 
@@ -3386,6 +3411,7 @@ function computeMatMul(){
     `${makeStepNum(stepIdx++)}<span>结果矩阵 C = AB</span>`,
     dispMatrix(C)
   ));
+  saveAns(C);
   showResults(steps.join('\n'),`${dispMatrix(C)}`);
 }
 
@@ -3406,6 +3432,7 @@ function computeScalarMul(){
     `${makeStepNum(stepIdx++)}<span>结果 kA</span>`,
     dispMatrix(C)
   ));
+  saveAns(C);
   showResults(steps.join('\n'),`${dispMatrix(C)}`);
 }
 
@@ -3492,6 +3519,7 @@ function computePinvap(){
   const A=getMatrixValue('pinvA',rows,rows);
   const{steps,result,err}=computePinvAP(P,A);
   if(err){showResults(steps.join('\n')+`<div class="info-box error">${err}</div>`);return;}
+  saveAns(result);
   showResults(steps.join('\n'),`<div style="font-size:.85rem;color:var(--text2);margin-bottom:6px">P⁻¹AP = </div>${dispMatrix(result)}`);
 }
 
@@ -3501,6 +3529,7 @@ function computeTrans(){
   const B2=getMatrixValue('transB2',n,n);
   const{steps,result,err}=transitionMatrix(B1,B2);
   if(err){showResults(steps.join('\n')+`<div class="info-box error">${err}</div>`);return;}
+  saveAns(result);
   showResults(steps.join('\n'),`<div style="font-size:.85rem;color:var(--text2);margin-bottom:6px">过渡矩阵 P = B₁⁻¹B₂ = </div>${dispMatrix(result)}`);
 }
 
@@ -3626,8 +3655,34 @@ function fillPolygcdExample(){
 // ============================================================
 // NUMPAD LOGIC
 // ============================================================
+let lastAns = null; // Frac or null — last scalar result
+
+function saveAns(v){
+  if(v===null||v===undefined)return;
+  lastAns=v;
+  const btn=document.getElementById('np-ans-btn');
+  if(!btn)return;
+  let label='';
+  if(Array.isArray(v)&&v.length>0){
+    const r=v.length, c=v[0].length;
+    label=`${r}×${c}矩阵`;
+  } else {
+    label=v instanceof Frac?v.toStr():String(v);
+  }
+  btn.innerHTML=`ANS<br><span style="font-size:.62rem;opacity:.85">${label}</span>`;
+  btn.classList.remove('inactive');
+  btn.classList.add('active');
+}
+
+function triggerDimRebuild(el){
+  const rebuildFn=(el.dataset.rebuild||'').trim();
+  if(!rebuildFn)return;
+  const fnName=rebuildFn.replace(/\(\)$/,'');
+  if(typeof window[fnName]==='function')window[fnName]();
+}
+
 function setupNumpadListeners(){
-  document.querySelectorAll('.mat-cell, .poly-coeff, .scalar-input').forEach(el=>{
+  document.querySelectorAll('.mat-cell, .poly-coeff, .scalar-input, .dim-cell').forEach(el=>{
     el.removeEventListener('focus',showNumpadHandler);
     el.addEventListener('focus',showNumpadHandler);
   });
@@ -3648,6 +3703,14 @@ function hideNumpad(){
 
 function npInput(val){
   if(!activeCell)return;
+  if(activeCell.classList.contains('dim-cell')){
+    // Only accept digits 1-6 for dimension cells
+    const num=parseInt(val);
+    if(isNaN(num)||num<1||num>6)return;
+    activeCell.value=String(num);
+    triggerDimRebuild(activeCell);
+    return;
+  }
   const cur=activeCell.value;
   if(cur==='0'&&val!=='.'&&val!=='/')activeCell.value=val;
   else activeCell.value=cur+val;
@@ -3660,11 +3723,26 @@ function npInput(val){
 }
 function npBackspace(){
   if(!activeCell)return;
+  if(activeCell.classList.contains('dim-cell'))return; // no backspace on dim cells
   activeCell.value=activeCell.value.slice(0,-1)||'0';
 }
 function npClear(){
   if(!activeCell)return;
+  if(activeCell.classList.contains('dim-cell')){
+    activeCell.value='1';
+    triggerDimRebuild(activeCell);
+    return;
+  }
   activeCell.value='0';
+}
+function npPrevCell(){
+  if(!activeCell)return;
+  const all=Array.from(document.querySelectorAll('.mat-cell, .poly-coeff, .scalar-input'));
+  const idx=all.indexOf(activeCell);
+  if(idx>0){
+    all[idx-1].focus();
+    activeCell=all[idx-1];
+  }
 }
 function npNextCell(){
   if(!activeCell)return;
@@ -3675,10 +3753,61 @@ function npNextCell(){
     activeCell=all[idx+1];
   }
 }
+function npAns(){
+  if(!activeCell||lastAns===null)return;
+  if(activeCell.classList.contains('dim-cell'))return;
+
+  if(lastAns instanceof Frac||typeof lastAns==='number'){
+    // Scalar: insert into active cell
+    const val=lastAns instanceof Frac?lastAns.toStr():String(lastAns);
+    activeCell.value=val;
+    const id=activeCell.id;
+    if(id){
+      const match=id.match(/^(p[a-z]+-[fg])_c\d+$/);
+      if(match)updatePolyDisplay(match[1]);
+    }
+  } else if(Array.isArray(lastAns)&&lastAns.length>0){
+    // Matrix: find matrix prefix from focused cell id
+    const cellId=activeCell.id;
+    const match=cellId.match(/^(.+)_[ab]\d/);
+    if(!match)return;
+    const prefix=match[1];
+    const ansRows=lastAns.length;
+    const ansCols=lastAns[0].length;
+
+    // Update dim inputs if they exist and dimensions differ
+    const rowsEl=document.getElementById(`${prefix}-rows`);
+    const colsEl=document.getElementById(`${prefix}-cols`);
+    let needRebuild=false;
+    if(rowsEl&&parseInt(rowsEl.value)!==ansRows){rowsEl.value=ansRows;needRebuild=true;}
+    if(colsEl&&parseInt(colsEl.value)!==ansCols){colsEl.value=ansCols;needRebuild=true;}
+
+    if(needRebuild){
+      const src=rowsEl||colsEl;
+      const rebuildFn=src?src.dataset.rebuild:'';
+      if(rebuildFn){
+        const fnName=rebuildFn.replace(/\(\)$/,'');
+        if(typeof window[fnName]==='function')window[fnName]();
+      }
+      setTimeout(()=>fillMatrixFromAns(prefix,lastAns),60);
+    } else {
+      fillMatrixFromAns(prefix,lastAns);
+    }
+  }
+}
+
+function fillMatrixFromAns(prefix,mat){
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat[i].length;j++){
+      const el=document.getElementById(`${prefix}_a${i}_${j}`);
+      if(el){const v=mat[i][j];el.value=v instanceof Frac?v.toStr():String(Math.round(v*1e9)/1e9);}
+    }
+  }
+}
 function onCellFocus(el){
   activeCell=el;
   el.classList.add('focused');
-  if(el.value==='0')el.select();
+  if(!el.classList.contains('dim-cell')&&el.value==='0')el.select();
   showNumpad();
 }
 function onCellBlur(el){
@@ -3724,7 +3853,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   });
     // 定义需要禁用长按菜单的选择器
-  const noMenuSelectors = '.mat-cell, .poly-coeff, .scalar-input';
+  const noMenuSelectors = '.mat-cell, .poly-coeff, .scalar-input, .dim-cell';
 
   // 使用事件委托或直接绑定
   document.body.addEventListener('contextmenu', function(e) {
