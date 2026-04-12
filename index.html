@@ -3,7 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>线性代数工具箱</title>
+
+<!-- Primary SEO -->
+<title>线性代数工具箱 | 行列式·逆矩阵·特征值·二次型·多项式</title>
+<meta name="description" content="免费在线线性代数计算工具，支持行列式、逆矩阵、矩阵的秩、特征值与特征向量、矩阵对角化、线性方程组求解、二次型化标准型、多项式带余除法等，全程展示逐步解题过程。">
+<meta name="keywords" content="线性代数,行列式计算,逆矩阵,矩阵的秩,特征值,特征向量,矩阵对角化,线性方程组,二次型,高斯消元,最简行阶梯形,RREF,过渡矩阵,多项式除法,大学数学工具">
+<meta name="author" content="zczzzzz, Genkaim">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#f4f4f4">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="线性代数工具箱 | 逐步解题过程">
+<meta property="og:description" content="免费在线线性代数计算器，涵盖行列式、逆矩阵、特征值、方程组、二次型等，支持分步演示，适合大学线性代数学习。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:site_name" content="线性代数工具箱">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="线性代数工具箱">
+<meta name="twitter:description" content="免费在线线性代数计算器，逐步展示行列式、逆矩阵、特征值、方程组求解过程。">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "线性代数工具箱",
+  "description": "免费在线线性代数计算工具，支持行列式、逆矩阵、特征值、线性方程组、二次型等逐步解题",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "author": [
+    { "@type": "Person", "name": "zczzzzz" },
+    { "@type": "Person", "name": "Genkaim" }
+  ],
+  "offers": { "@type": "Offer", "price": "0" }
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Serif+SC:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -478,6 +517,58 @@ font-weight:500;
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text2)}
 
+/* ===== NUMPAD OPEN — push content up ===== */
+body.numpad-open #main{
+  padding-bottom:260px;
+}
+
+/* ===== PAGE FOOTER ===== */
+#page-footer{
+  margin-top:40px;
+  padding:18px 0 6px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:.78rem;
+  color:var(--text2);
+  letter-spacing:.5px;
+  font-family:'Times New Roman',Times,serif;
+  opacity:.8;
+}
+#page-footer a{
+  color:#5a7ab5;
+  text-decoration:none;
+  font-family:'Times New Roman',Times,serif;
+  transition:color .15s;
+}
+#page-footer a:hover{
+  color:#3a5a9a;
+  text-decoration:underline;
+}
+#github-star{
+  text-align:center;
+  padding:12px 0 28px;
+}
+#github-star-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;
+  background:#24292f;
+  color:#ffffff;
+  border-radius:8px;
+  text-decoration:none;
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:.83rem;
+  font-weight:500;
+  letter-spacing:.2px;
+  transition:background .15s, transform .1s, box-shadow .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+#github-star-btn:hover{
+  background:#383f47;
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(0,0,0,.22);
+}
+#github-star-btn:active{transform:translateY(0)}
+
 /* ===== HUB PAGE ===== */
 /* ===== HUB PAGE — desktop base ===== */
 #hub-page{max-width:900px}
@@ -806,7 +897,16 @@ font-weight:500;
 
   <!-- Tool panels injected here -->
   <div id="tool-area" style="display:none"></div>
-  <div id="results" style="margin-bottom: 300px;"></div>
+  <div id="results"></div>
+  <div id="page-footer">Developed by <a href="https://claude.ai" target="_blank" rel="noopener">Claude</a> &nbsp;·&nbsp; <a href="https://www.genkaim.top/posts/37cb61b3" target="_blank" rel="noopener">zczzzzz</a> &nbsp;·&nbsp; <a href="https://genkaim.top" target="_blank" rel="noopener">Genkaim</a></div>
+  <div id="github-star">
+    <a href="https://github.com/Genkaim/LaToolBox" target="_blank" rel="noopener" id="github-star-btn">
+      <svg height="16" viewBox="0 0 16 16" width="16" aria-hidden="true" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      <span>如果觉得有用，请给个 Star ⭐</span>
+    </a>
+  </div>
 </div>
 </div><!-- end #app -->
 
@@ -3695,9 +3795,11 @@ function showNumpadHandler(){
 
 function showNumpad(){
   document.getElementById('numpad').classList.add('visible');
+  document.body.classList.add('numpad-open');
 }
 function hideNumpad(){
   document.getElementById('numpad').classList.remove('visible');
+  document.body.classList.remove('numpad-open');
   if(activeCell){activeCell.blur();activeCell=null;}
 }
 
