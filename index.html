@@ -510,9 +510,8 @@ body.numpad-open #main{padding-bottom:260px;}
 #gh-star-header:hover{border-color:#e3b341;color:var(--text);background:rgba(227,179,65,.06);}
 .gh-star-label{font-weight:500}
 @media(max-width:700px){#gh-star-header{display:none}}
-@media(min-width:701px){#gh-star-sidebar{display:none}}
 #gh-star-sidebar{
-  display:flex;align-items:center;gap:8px;
+  display:none;
   width:calc(100% - 20px);
   margin:4px 10px 4px;padding:9px 14px;
   border:1px solid var(--border2);border-radius:8px;
@@ -521,8 +520,10 @@ body.numpad-open #main{padding-bottom:260px;}
   transition:border-color .15s,background .15s;
   background:linear-gradient(135deg,rgba(61,61,61,.1),rgba(83,83,83,.08));
   box-sizing:border-box;
+  align-items:center;gap:8px;
 }
-#gh-star-sidebar svg{flex-shrink:0;position:relative;top:0px;}
+@media(max-width:700px){#gh-star-sidebar{display:flex}}
+#gh-star-sidebar svg{flex-shrink:0;}
 #gh-star-sidebar:hover{border-color:#e3b341;background:rgba(227,179,65,.06);}
 
 /* ===== PAGE FOOTER ===== */
@@ -619,7 +620,6 @@ body.numpad-open #main{padding-bottom:260px;}
   transition:all .15s;
 }
 .btn-to-hub:hover{filter:brightness(1.12)}
-#gh-star-sidebar{display:none;}
 
 /* Hub sidebar btn */
 .hub-sidebar-btn{
@@ -686,8 +686,6 @@ body.numpad-open #main{padding-bottom:260px;}
   font-family:'IBM Plex Sans',sans-serif;transition:all .15s;
 }
 .hist-clear-btn:hover{background:rgba(224,82,82,.15)}
-@media(max-width:700px){
-#gh-star-sidebar{display:flex;}}
 </style>
 </head>
 <body>
@@ -3799,13 +3797,13 @@ function npClear(){
 }
 function npPrevCell(){
   if(!activeCell)return;
-  const all=Array.from(document.querySelectorAll('.mat-cell,.poly-coeff,.scalar-input'));
+  const all=Array.from(document.querySelectorAll('.mat-cell,.poly-coeff,.scalar-input,.dim-cell'));
   const idx=all.indexOf(activeCell);
   if(idx>0){all[idx-1].focus();activeCell=all[idx-1];}
 }
 function npNextCell(){
   if(!activeCell)return;
-  const all=Array.from(document.querySelectorAll('.mat-cell,.poly-coeff,.scalar-input'));
+  const all=Array.from(document.querySelectorAll('.mat-cell,.poly-coeff,.scalar-input,.dim-cell'));
   const idx=all.indexOf(activeCell);
   if(idx>=0&&idx<all.length-1){all[idx+1].focus();activeCell=all[idx+1];}
 }
