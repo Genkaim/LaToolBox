@@ -373,73 +373,30 @@ font-weight:500;
   margin-top:6px;
 }
 
-/* ===== NUMPAD ===== */
-#numpad{
+/* ===== NUMPAD WRAPPER ===== */
+#numpad-wrap{
+  display:none;
   position:fixed;bottom:0;left:0;right:0;z-index:500;
-  background:#e9e9e9;
-  border:1px solid var(--border2);
-  padding:10px 10px 16px;
-  display:none;
-  grid-template-columns:repeat(5,1fr);
-  gap:6px;
-  max-width:500px;
-  margin:0 auto;
-  box-shadow:0 -8px 30px rgba(0,0,0,0.037);
-  border-radius:12px 12px 0 0;
+  flex-direction:column;align-items:center;
+  pointer-events:none;
 }
-#numpad.visible{display:grid}
+#numpad-wrap.visible{display:flex;}
 
-/* ===== CAMERA BUTTON (floats above numpad) ===== */
-.np-btn.cam{
-  display:none;
-  position:fixed;z-index:501;
-  bottom:220px;right:calc(50% - 190px);
-  height:30px;padding:0 14px;
-  background:#e9e9e9;
-  color:rgb(80,82,20);
-  border:1px solid rgba(114,116,54,.55);
-  border-bottom:none;
-  border-radius:8px 8px 0 0;
-  font-size:.74rem;font-weight:600;gap:5px;
-  font-family:'IBM Plex Sans',sans-serif;
-  align-items:center;justify-content:center;
-  cursor:pointer;transition:background .15s,border-color .15s;
-  white-space:nowrap;
-}
-.np-btn.cam.mat-active{display:flex}
-.np-btn.cam:hover,.np-btn.cam:active{background:#deded8;border-color:rgba(114,116,54,.9);}
-.np-btn.cam.loading{opacity:.5;cursor:not-allowed;pointer-events:none}
-@media(max-width:500px){.np-btn.cam{right:44px;}}
-.np-btn{
-  height:44px;border:1px solid var(--border2);
-  background:var(--surface2);color:var(--text);
-  border-radius:7px;cursor:pointer;font-size:1rem;
-  font-family:'JetBrains Mono',monospace;
-  transition:all .1s;
-  display:flex;align-items:center;justify-content:center;
-}
-.np-btn:active{background:var(--accent);color:#000}
-.np-btn.special{background:var(--bg2);color:#979c85}
-.np-btn.confirm{background:rgba(0, 0, 0, 0.732);color:#ffffff;font-weight:600}
-.np-btn.clear{background:rgba(224,82,82,.15);color:var(--red);border-color:rgba(224,82,82,.3)}
-.np-btn.ans{background:rgba(114,116,54,.12);color:var(--accent);border-color:rgba(114,116,54,.35);font-size:.82rem;font-weight:600;flex-direction:column;gap:1px}
-.np-btn.ans.active{background:rgba(114,116,54,.25)}
-.np-btn.ans.inactive{opacity:.4;cursor:not-allowed}
-
-/* ===== NUMPAD TOP BAR (cam + close, sits above numpad) ===== */
+/* ===== TOP BAR (cam + close) ===== */
 #np-top-bar{
-  display:none;
-  position:fixed;z-index:501;
-  bottom:220px;right:calc(50% - 248px);
+  display:flex;align-items:stretch;
+  align-self:flex-end;
+  margin-right:calc(50% - 248px);
   height:30px;
   background:#e9e9e9;
   border:1px solid var(--border2);
   border-bottom:none;
   border-radius:8px 8px 0 0;
   overflow:hidden;
-  box-shadow:-2px -2px 8px rgba(0,0,0,.04);
+  pointer-events:all;
 }
-#np-top-bar.visible{display:flex;align-items:stretch;}
+@media(max-width:500px){#np-top-bar{margin-right:10px;}}
+
 #np-cam-btn{
   display:flex;align-items:center;gap:5px;
   padding:0 12px;
@@ -467,7 +424,35 @@ font-weight:500;
   flex-shrink:0;
 }
 #numpad-close:hover{background:rgba(224,82,82,.1);color:var(--red);}
-@media(max-width:500px){#np-top-bar{right:10px;}}
+
+/* ===== NUMPAD ===== */
+#numpad{
+  width:100%;max-width:500px;
+  background:#e9e9e9;
+  border:1px solid var(--border2);
+  padding:10px 10px 16px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  box-shadow:0 -8px 30px rgba(0,0,0,0.037);
+  border-radius:12px 12px 0 0;
+  pointer-events:all;
+}
+.np-btn{
+  height:44px;border:1px solid var(--border2);
+  background:var(--surface2);color:var(--text);
+  border-radius:7px;cursor:pointer;font-size:1rem;
+  font-family:'JetBrains Mono',monospace;
+  transition:all .1s;
+  display:flex;align-items:center;justify-content:center;
+}
+.np-btn:active{background:var(--accent);color:#000}
+.np-btn.special{background:var(--bg2);color:#979c85}
+.np-btn.confirm{background:rgba(0, 0, 0, 0.732);color:#ffffff;font-weight:600}
+.np-btn.clear{background:rgba(224,82,82,.15);color:var(--red);border-color:rgba(224,82,82,.3)}
+.np-btn.ans{background:rgba(114,116,54,.12);color:var(--accent);border-color:rgba(114,116,54,.35);font-size:.82rem;font-weight:600;flex-direction:column;gap:1px}
+.np-btn.ans.active{background:rgba(114,116,54,.25)}
+.np-btn.ans.inactive{opacity:.4;cursor:not-allowed}
 
 /* ===== CAMERA MODAL ===== */
 #cam-modal{
@@ -984,7 +969,10 @@ body.numpad-open #main{padding-bottom:270px;}
 </div>
 </div><!-- end #app -->
 
-<!-- NUMPAD TOP BAR -->
+<!-- NUMPAD WRAPPER -->
+<div id="numpad-wrap">
+
+<!-- Top bar: cam + close -->
 <div id="np-top-bar">
   <button id="np-cam-btn" onclick="npCamera()">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -1016,7 +1004,8 @@ body.numpad-open #main{padding-bottom:270px;}
   <button class="np-btn special" onclick="npInput('.')">.</button>
   <button class="np-btn special" onclick="npInput('+')">+</button>
   <button class="np-btn confirm" onclick="hideNumpad()">确认</button>
-</div>
+</div><!-- end #numpad -->
+</div><!-- end #numpad-wrap -->
 
 <!-- Camera modal -->
 <div id="cam-modal">
@@ -3886,14 +3875,12 @@ function setupNumpadListeners(){
 function showNumpadHandler(){activeCell=this;showNumpad();}
 
 function showNumpad(){
-  document.getElementById('numpad').classList.add('visible');
-  document.getElementById('np-top-bar').classList.add('visible');
+  document.getElementById('numpad-wrap').classList.add('visible');
   document.body.classList.add('numpad-open');
   updateCamBar();
 }
 function hideNumpad(){
-  document.getElementById('numpad').classList.remove('visible');
-  document.getElementById('np-top-bar').classList.remove('visible');
+  document.getElementById('numpad-wrap').classList.remove('visible');
   document.body.classList.remove('numpad-open');
   if(activeCell){activeCell.blur();activeCell=null;}
 }
@@ -4104,27 +4091,23 @@ function preprocessCanvas(src){
   return dst;
 }
 
-// Load Tesseract.js v4 on first use (v4 is CDN-stable with simple API)
+// Load Tesseract.js v4 on first use
 let _tWorker=null;
 async function ensureTesseract(){
   if(_tWorker)return _tWorker;
   if(typeof Tesseract==='undefined'){
     await new Promise((res,rej)=>{
       const s=document.createElement('script');
-      s.src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js';
-      s.onload=res; s.onerror=()=>rej(new Error('无法加载 Tesseract'));
+      s.src='https://unpkg.com/tesseract.js@4.1.4/dist/tesseract.min.js';
+      s.onload=res;
+      s.onerror=()=>rej(new Error('无法加载识别引擎，请检查网络'));
       document.head.appendChild(s);
     });
   }
-  const worker=await Tesseract.createWorker('eng',1,{
-    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/worker.min.js',
-    langPath:'https://tessdata.projectnaptha.com/4.0.0_fast',
-    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@4/tesseract-core-simd.wasm.js',
-    logger:()=>{},
-  });
+  const worker=await Tesseract.createWorker('eng',1,{logger:()=>{}});
   await worker.setParameters({
     tessedit_char_whitelist:'0123456789.-/',
-    tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,
+    tessedit_pageseg_mode:'6',
   });
   _tWorker=worker;
   return worker;
