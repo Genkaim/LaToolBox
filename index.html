@@ -384,10 +384,32 @@ font-weight:500;
   gap:6px;
   max-width:500px;
   margin:0 auto;
-  box-shadow:0 -8px 30px rgba(0, 0, 0, 0.037);
+  box-shadow:0 -8px 30px rgba(0,0,0,0.037);
   border-radius:12px 12px 0 0;
 }
 #numpad.visible{display:grid}
+
+/* ===== CAMERA BUTTON (floats above numpad) ===== */
+.np-btn.cam{
+  display:none;
+  position:fixed;z-index:501;
+  bottom:220px;right:calc(50% - 190px);
+  height:30px;padding:0 14px;
+  background:#e9e9e9;
+  color:rgb(80,82,20);
+  border:1px solid rgba(114,116,54,.55);
+  border-bottom:none;
+  border-radius:8px 8px 0 0;
+  font-size:.74rem;font-weight:600;gap:5px;
+  font-family:'IBM Plex Sans',sans-serif;
+  align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s,border-color .15s;
+  white-space:nowrap;
+}
+.np-btn.cam.mat-active{display:flex}
+.np-btn.cam:hover,.np-btn.cam:active{background:#deded8;border-color:rgba(114,116,54,.9);}
+.np-btn.cam.loading{opacity:.5;cursor:not-allowed;pointer-events:none}
+@media(max-width:500px){.np-btn.cam{right:44px;}}
 .np-btn{
   height:44px;border:1px solid var(--border2);
   background:var(--surface2);color:var(--text);
@@ -403,15 +425,93 @@ font-weight:500;
 .np-btn.ans{background:rgba(114,116,54,.12);color:var(--accent);border-color:rgba(114,116,54,.35);font-size:.82rem;font-weight:600;flex-direction:column;gap:1px}
 .np-btn.ans.active{background:rgba(114,116,54,.25)}
 .np-btn.ans.inactive{opacity:.4;cursor:not-allowed}
-#numpad-close{
-  position:absolute;top:-14px;right:14px;
-  width:28px;height:28px;border-radius:50%;
-  background:var(--surface2);border:1px solid var(--border2);
-  color:var(--text2);cursor:pointer;font-size:14px;
-  display:flex;align-items:center;justify-content:center;
-}
 
-/* ===== EQUATION DISPLAY ===== */
+/* ===== NUMPAD TOP BAR (cam + close, sits above numpad) ===== */
+#np-top-bar{
+  display:none;
+  position:fixed;z-index:501;
+  bottom:220px;right:calc(50% - 248px);
+  height:30px;
+  background:#e9e9e9;
+  border:1px solid var(--border2);
+  border-bottom:none;
+  border-radius:8px 8px 0 0;
+  overflow:hidden;
+  box-shadow:-2px -2px 8px rgba(0,0,0,.04);
+}
+#np-top-bar.visible{display:flex;align-items:stretch;}
+#np-cam-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:0 12px;
+  background:transparent;border:none;
+  color:rgb(80,82,20);
+  font-size:.73rem;font-weight:600;
+  font-family:'IBM Plex Sans',sans-serif;
+  cursor:pointer;white-space:nowrap;
+  transition:background .15s;
+  opacity:.35;pointer-events:none;
+}
+#np-cam-btn.mat-active{opacity:1;pointer-events:all;}
+#np-cam-btn:hover{background:rgba(114,116,54,.12);}
+#np-cam-btn.loading{opacity:.4;pointer-events:none;}
+#np-top-bar-div{
+  width:1px;background:var(--border2);
+  flex-shrink:0;margin:6px 0;
+}
+#numpad-close{
+  display:flex;align-items:center;justify-content:center;
+  width:34px;
+  background:transparent;border:none;
+  color:var(--text2);cursor:pointer;font-size:13px;
+  transition:background .15s;
+  flex-shrink:0;
+}
+#numpad-close:hover{background:rgba(224,82,82,.1);color:var(--red);}
+@media(max-width:500px){#np-top-bar{right:10px;}}
+
+/* ===== CAMERA MODAL ===== */
+#cam-modal{
+  display:none;position:fixed;inset:0;z-index:700;
+  background:#000;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+#cam-modal.open{display:flex}
+#cam-video{
+  width:100%;max-height:calc(100vh - 120px);
+  object-fit:cover;flex:1;
+}
+#cam-controls{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px 28px;background:#000;flex-shrink:0;
+}
+#cam-cancel-btn{
+  color:#fff;background:none;border:1px solid rgba(255,255,255,.3);
+  border-radius:8px;padding:8px 16px;cursor:pointer;font-size:.85rem;
+  font-family:'IBM Plex Sans',sans-serif;
+}
+#cam-shoot-btn{
+  width:62px;height:62px;border-radius:50%;
+  background:#fff;border:4px solid rgba(255,255,255,.4);
+  cursor:pointer;color:#000;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .1s;
+}
+#cam-shoot-btn:active{transform:scale(.92)}
+#cam-hint{
+  position:absolute;top:16px;left:0;right:0;
+  text-align:center;color:rgba(255,255,255,.7);
+  font-size:.8rem;font-family:'IBM Plex Sans',sans-serif;
+  pointer-events:none;
+}
+#cam-status{
+  position:absolute;bottom:108px;left:0;right:0;
+  text-align:center;color:#fff;
+  font-size:.84rem;font-family:'IBM Plex Sans',sans-serif;
+  background:rgba(0,0,0,.6);padding:7px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== OCR OVERLAY ===== */
 .eq-display{
   font-family:'JetBrains Mono',monospace;
   font-size:.9rem;color:var(--text);
@@ -495,7 +595,7 @@ font-weight:500;
 ::-webkit-scrollbar-thumb:hover{background:var(--text2)}
 
 /* ===== NUMPAD OPEN ===== */
-body.numpad-open #main{padding-bottom:260px;}
+body.numpad-open #main{padding-bottom:270px;}
 
 /* ===== GITHUB STAR BADGE ===== */
 #gh-star-header{
@@ -884,9 +984,18 @@ body.numpad-open #main{padding-bottom:260px;}
 </div>
 </div><!-- end #app -->
 
+<!-- NUMPAD TOP BAR -->
+<div id="np-top-bar">
+  <button id="np-cam-btn" onclick="npCamera()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <span id="np-cam-label">拍照识别</span>
+  </button>
+  <div id="np-top-bar-div"></div>
+  <div id="numpad-close" onclick="hideNumpad()">✕</div>
+</div>
+
 <!-- NUMPAD -->
 <div id="numpad">
-  <div id="numpad-close" onclick="hideNumpad()">✕</div>
   <button class="np-btn" onclick="npInput('7')">7</button>
   <button class="np-btn" onclick="npInput('8')">8</button>
   <button class="np-btn" onclick="npInput('9')">9</button>
@@ -907,6 +1016,21 @@ body.numpad-open #main{padding-bottom:260px;}
   <button class="np-btn special" onclick="npInput('.')">.</button>
   <button class="np-btn special" onclick="npInput('+')">+</button>
   <button class="np-btn confirm" onclick="hideNumpad()">确认</button>
+</div>
+
+<!-- Camera modal -->
+<div id="cam-modal">
+  <video id="cam-video" autoplay playsinline muted></video>
+  <canvas id="cam-canvas" style="display:none"></canvas>
+  <div id="cam-controls">
+    <button id="cam-cancel-btn" onclick="closeCamModal()">取消</button>
+    <button id="cam-shoot-btn" onclick="shootPhoto()">
+      <span id="cam-shoot-icon">⊙</span>
+    </button>
+    <div style="width:64px"></div>
+  </div>
+  <div id="cam-hint">对准矩阵拍摄</div>
+  <div id="cam-status"></div>
 </div>
 
 <script>
@@ -3763,12 +3887,19 @@ function showNumpadHandler(){activeCell=this;showNumpad();}
 
 function showNumpad(){
   document.getElementById('numpad').classList.add('visible');
+  document.getElementById('np-top-bar').classList.add('visible');
   document.body.classList.add('numpad-open');
+  updateCamBar();
 }
 function hideNumpad(){
   document.getElementById('numpad').classList.remove('visible');
+  document.getElementById('np-top-bar').classList.remove('visible');
   document.body.classList.remove('numpad-open');
   if(activeCell){activeCell.blur();activeCell=null;}
+}
+function updateCamBar(){
+  const isMat=activeCell&&activeCell.classList.contains('mat-cell');
+  document.getElementById('np-cam-btn').classList.toggle('mat-active',!!isMat);
 }
 
 function npInput(val){
@@ -3843,8 +3974,219 @@ function onCellFocus(el){
   el.classList.add('focused');
   if(!el.classList.contains('dim-cell')&&el.value==='0')el.select();
   showNumpad();
+  updateCamBar();
 }
 function onCellBlur(el){el.classList.remove('focused');}
+
+// ============================================================
+// CAMERA / OCR — getUserMedia + local Tesseract.js
+// ============================================================
+let ocrTargetCell=null;
+let camStream=null;
+
+function npCamera(){
+  if(!activeCell||!activeCell.classList.contains('mat-cell'))return;
+  ocrTargetCell=activeCell;
+  openCamModal();
+}
+
+async function openCamModal(){
+  const modal=document.getElementById('cam-modal');
+  const video=document.getElementById('cam-video');
+  setCamStatus('');
+  modal.classList.add('open');
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},
+      audio:false
+    });
+    video.srcObject=camStream;
+  }catch(e){
+    setCamStatus('无法访问相机：'+e.message);
+  }
+}
+
+function closeCamModal(){
+  const modal=document.getElementById('cam-modal');
+  const video=document.getElementById('cam-video');
+  modal.classList.remove('open');
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  video.srcObject=null;
+  // Restore numpad focus
+  if(ocrTargetCell){ocrTargetCell.focus();activeCell=ocrTargetCell;}
+}
+
+function setCamStatus(msg){
+  const el=document.getElementById('cam-status');
+  el.textContent=msg;
+  el.style.display=msg?'block':'none';
+}
+
+async function shootPhoto(){
+  const video=document.getElementById('cam-video');
+  const canvas=document.getElementById('cam-canvas');
+  if(!video.videoWidth){setCamStatus('相机未就绪，请稍候');return;}
+
+  // Capture frame
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  canvas.getContext('2d').drawImage(video,0,0);
+
+  const btn=document.getElementById('cam-shoot-btn');
+  btn.disabled=true;
+  setCamStatus('识别中…');
+
+  try{
+    const matrix=await recognizeMatrix(canvas);
+    if(!matrix||!matrix.length){
+      setCamStatus('未识别到矩阵，请调整角度重试');
+      btn.disabled=false;
+      return;
+    }
+    closeCamModal();
+    applyOcrMatrix(matrix);
+  }catch(e){
+    setCamStatus('识别失败：'+e.message);
+    btn.disabled=false;
+  }
+}
+
+// Preprocess canvas for handwriting OCR:
+// scale up, grayscale, adaptive threshold, slight dilation
+function preprocessCanvas(src){
+  const scale=2;
+  const w=src.width*scale, h=src.height*scale;
+  const dst=document.createElement('canvas');
+  dst.width=w; dst.height=h;
+  const ctx=dst.getContext('2d');
+  // Upscale
+  ctx.drawImage(src,0,0,w,h);
+  // Get pixel data
+  const img=ctx.getImageData(0,0,w,h);
+  const d=img.data;
+  // Greyscale
+  for(let i=0;i<d.length;i+=4){
+    const g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+    d[i]=d[i+1]=d[i+2]=g;
+  }
+  // Auto-threshold via Otsu's method on grey values
+  const hist=new Array(256).fill(0);
+  for(let i=0;i<d.length;i+=4)hist[Math.round(d[i])]++;
+  const total=w*h;
+  let sum=0;for(let i=0;i<256;i++)sum+=i*hist[i];
+  let sumB=0,wB=0,max=0,thresh=128;
+  for(let i=0;i<256;i++){
+    wB+=hist[i]; if(!wB)continue;
+    const wF=total-wB; if(!wF)break;
+    sumB+=i*hist[i];
+    const mB=sumB/wB, mF=(sum-sumB)/wF;
+    const v=wB*wF*(mB-mF)*(mB-mF);
+    if(v>max){max=v;thresh=i;}
+  }
+  // Binarize: dark strokes on white background
+  for(let i=0;i<d.length;i+=4){
+    const v=d[i]<thresh?0:255;
+    d[i]=d[i+1]=d[i+2]=v; d[i+3]=255;
+  }
+  // Simple 3x3 dilation to thicken pen strokes
+  const src2=new Uint8ClampedArray(d);
+  for(let y=1;y<h-1;y++){
+    for(let x=1;x<w-1;x++){
+      if(src2[(y*w+x)*4]===0)continue;// already black, skip
+      let hasBlack=false;
+      outer:for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+        if(src2[((y+dy)*w+(x+dx))*4]===0){hasBlack=true;break outer;}
+      }
+      if(hasBlack){const idx=(y*w+x)*4;d[idx]=d[idx+1]=d[idx+2]=0;}
+    }
+  }
+  ctx.putImageData(img,0,0);
+  return dst;
+}
+
+// Load Tesseract.js v4 on first use (v4 is CDN-stable with simple API)
+let _tWorker=null;
+async function ensureTesseract(){
+  if(_tWorker)return _tWorker;
+  if(typeof Tesseract==='undefined'){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js';
+      s.onload=res; s.onerror=()=>rej(new Error('无法加载 Tesseract'));
+      document.head.appendChild(s);
+    });
+  }
+  const worker=await Tesseract.createWorker('eng',1,{
+    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/worker.min.js',
+    langPath:'https://tessdata.projectnaptha.com/4.0.0_fast',
+    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@4/tesseract-core-simd.wasm.js',
+    logger:()=>{},
+  });
+  await worker.setParameters({
+    tessedit_char_whitelist:'0123456789.-/',
+    tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,
+  });
+  _tWorker=worker;
+  return worker;
+}
+
+async function recognizeMatrix(canvas){
+  setCamStatus('加载识别引擎…');
+  const worker=await ensureTesseract();
+  setCamStatus('识别中…');
+  const processed=preprocessCanvas(canvas);
+  const {data:{text}}=await worker.recognize(processed);
+  return parseMatrixText(text);
+}
+
+function parseMatrixText(text){
+  const lines=text.split('\n')
+    .map(l=>l.replace(/[[\](){}|lIoO]/g,' ').trim())
+    .filter(l=>l.length>0);
+  const rows=[];
+  for(const line of lines){
+    const nums=line.match(/-?\d+(?:[./]\d+)?/g);
+    if(nums&&nums.length>0)rows.push(nums);
+  }
+  if(!rows.length)return null;
+  const maxCols=Math.max(...rows.map(r=>r.length));
+  return rows.filter(r=>r.length>=Math.max(1,Math.floor(maxCols/2)));
+}
+
+function applyOcrMatrix(rows){
+  if(!rows||!rows.length)return;
+  if(!ocrTargetCell)return;
+  const cellId=ocrTargetCell.id;
+  const match=cellId.match(/^(.+)_a(\d+)_(\d+)$/);
+  if(!match)return;
+  const prefix=match[1];
+  const ansRows=rows.length;
+  const ansCols=Math.max(...rows.map(r=>r.length));
+
+  const rowsEl=document.getElementById(`${prefix}-rows`);
+  const colsEl=document.getElementById(`${prefix}-cols`);
+  let needRebuild=false;
+  if(rowsEl&&parseInt(rowsEl.value)!==ansRows){rowsEl.value=ansRows;needRebuild=true;}
+  if(colsEl&&parseInt(colsEl.value)!==ansCols){colsEl.value=ansCols;needRebuild=true;}
+  if(needRebuild){
+    const src=rowsEl||colsEl;
+    if(src){const fn=(src.dataset.rebuild||'').replace(/\(\)$/,'');if(typeof window[fn]==='function')window[fn]();}
+    setTimeout(()=>fillOcrValues(prefix,rows),80);
+  }else{
+    fillOcrValues(prefix,rows);
+  }
+}
+
+function fillOcrValues(prefix,rows){
+  for(let i=0;i<rows.length;i++){
+    for(let j=0;j<rows[i].length;j++){
+      const el=document.getElementById(`${prefix}_a${i}_${j}`);
+      if(el)el.value=String(rows[i][j]);
+    }
+  }
+  const first=document.getElementById(`${prefix}_a0_0`);
+  if(first){first.focus();activeCell=first;}
+}
 
 // ============================================================
 // SIDEBAR TOGGLE
