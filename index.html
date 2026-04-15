@@ -387,11 +387,11 @@ font-weight:500;
   display:flex;align-items:stretch;
   align-self:flex-end;
   margin-right:calc(50% - 248px);
+  margin-bottom:5px;
   height:30px;
   background:#e9e9e9;
   border:1px solid var(--border2);
-  border-bottom:none;
-  border-radius:8px 8px 0 0;
+  border-radius:8px;
   overflow:hidden;
   pointer-events:all;
 }
@@ -4040,124 +4040,142 @@ async function shootPhoto(){
 
 // Preprocess canvas for handwriting OCR:
 // scale up, grayscale, adaptive threshold, slight dilation
-function preprocessCanvas(src){
-  const scale=2;
-  const w=src.width*scale, h=src.height*scale;
-  const dst=document.createElement('canvas');
-  dst.width=w; dst.height=h;
-  const ctx=dst.getContext('2d');
-  // Upscale
-  ctx.drawImage(src,0,0,w,h);
-  // Get pixel data
-  const img=ctx.getImageData(0,0,w,h);
-  const d=img.data;
-  // Greyscale
-  for(let i=0;i<d.length;i+=4){
-    const g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-    d[i]=d[i+1]=d[i+2]=g;
+function preprocessCanvas(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+
+  // 简单灰度化 + 二值化（可选）
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i+1] + data[i+2]) / 3;
+    data[i] = data[i+1] = data[i+2] = avg > 128 ? 255 : 0;
   }
-  // Auto-threshold via Otsu's method on grey values
-  const hist=new Array(256).fill(0);
-  for(let i=0;i<d.length;i+=4)hist[Math.round(d[i])]++;
-  const total=w*h;
-  let sum=0;for(let i=0;i<256;i++)sum+=i*hist[i];
-  let sumB=0,wB=0,max=0,thresh=128;
-  for(let i=0;i<256;i++){
-    wB+=hist[i]; if(!wB)continue;
-    const wF=total-wB; if(!wF)break;
-    sumB+=i*hist[i];
-    const mB=sumB/wB, mF=(sum-sumB)/wF;
-    const v=wB*wF*(mB-mF)*(mB-mF);
-    if(v>max){max=v;thresh=i;}
-  }
-  // Binarize: dark strokes on white background
-  for(let i=0;i<d.length;i+=4){
-    const v=d[i]<thresh?0:255;
-    d[i]=d[i+1]=d[i+2]=v; d[i+3]=255;
-  }
-  // Simple 3x3 dilation to thicken pen strokes
-  const src2=new Uint8ClampedArray(d);
-  for(let y=1;y<h-1;y++){
-    for(let x=1;x<w-1;x++){
-      if(src2[(y*w+x)*4]===0)continue;// already black, skip
-      let hasBlack=false;
-      outer:for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-        if(src2[((y+dy)*w+(x+dx))*4]===0){hasBlack=true;break outer;}
-      }
-      if(hasBlack){const idx=(y*w+x)*4;d[idx]=d[idx+1]=d[idx+2]=0;}
-    }
-  }
-  ctx.putImageData(img,0,0);
-  return dst;
+
+  ctx.putImageData(imgData, 0, 0);
+  return canvas;
 }
 
 // Load Tesseract.js v4 on first use
-let _tWorker=null;
-async function ensureTesseract(){
-  if(_tWorker)return _tWorker;
-  if(typeof Tesseract==='undefined'){
-    await new Promise((res,rej)=>{
-      const s=document.createElement('script');
-      s.src='https://unpkg.com/tesseract.js@4.1.4/dist/tesseract.min.js';
-      s.onload=res;
-      s.onerror=()=>rej(new Error('无法加载识别引擎，请检查网络'));
-      document.head.appendChild(s);
+let _tWorker = null;
+
+async function ensureTesseract() {
+  if (_tWorker) return _tWorker;
+
+  // 等待 Tesseract 加载
+  if (typeof Tesseract === 'undefined') {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'js/tesseract.min.js';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('无法加载 Tesseract.js，请检查网络'));
+      document.head.appendChild(script);
     });
   }
-  const worker=await Tesseract.createWorker('eng',1,{logger:()=>{}});
-  await worker.setParameters({
-    tessedit_char_whitelist:'0123456789.-/',
-    tessedit_pageseg_mode:'6',
-  });
-  _tWorker=worker;
-  return worker;
-}
 
-async function recognizeMatrix(canvas){
-  setCamStatus('加载识别引擎…');
-  const worker=await ensureTesseract();
-  setCamStatus('识别中…');
-  const processed=preprocessCanvas(canvas);
-  const {data:{text}}=await worker.recognize(processed);
-  return parseMatrixText(text);
-}
-
-function parseMatrixText(text){
-  const lines=text.split('\n')
-    .map(l=>l.replace(/[[\](){}|lIoO]/g,' ').trim())
-    .filter(l=>l.length>0);
-  const rows=[];
-  for(const line of lines){
-    const nums=line.match(/-?\d+(?:[./]\d+)?/g);
-    if(nums&&nums.length>0)rows.push(nums);
+  try {
+    // v4 API：显式指定本地文件路径，避免走 CDN
+    // gzip:false → 直接加载 tessdata/eng.traineddata（非 .gz）
+    const worker = await Tesseract.createWorker('eng', 1, {
+      workerPath:  'js/worker.min.js',
+      langPath:    'tessdata',
+      corePath:    'js/tesseract-core-simd.wasm.js',
+      cacheMethod: 'none',
+      gzip:        false,
+      logger:      () => {}
+    });
+    await worker.setParameters({
+      tessedit_char_whitelist: '0123456789.-+/ ',   // 修正原来 9 写成 5 的笔误
+      tessedit_pageseg_mode:   '6',
+    });
+    _tWorker = worker;
+    return worker;
+  } catch (e) {
+    console.error('Tesseract 创建失败:', e);
+    throw new Error('识别引擎初始化失败');
   }
-  if(!rows.length)return null;
-  const maxCols=Math.max(...rows.map(r=>r.length));
-  return rows.filter(r=>r.length>=Math.max(1,Math.floor(maxCols/2)));
 }
 
-function applyOcrMatrix(rows){
-  if(!rows||!rows.length)return;
-  if(!ocrTargetCell)return;
-  const cellId=ocrTargetCell.id;
-  const match=cellId.match(/^(.+)_a(\d+)_(\d+)$/);
-  if(!match)return;
-  const prefix=match[1];
-  const ansRows=rows.length;
-  const ansCols=Math.max(...rows.map(r=>r.length));
+async function recognizeMatrix(canvas) {
+  try {
+    const worker = await ensureTesseract();
+    setCamStatus('识别中…');
+    const processed = preprocessCanvas(canvas);
+    const { data: { text } } = await worker.recognize(processed);
 
-  const rowsEl=document.getElementById(`${prefix}-rows`);
-  const colsEl=document.getElementById(`${prefix}-cols`);
-  let needRebuild=false;
-  if(rowsEl&&parseInt(rowsEl.value)!==ansRows){rowsEl.value=ansRows;needRebuild=true;}
-  if(colsEl&&parseInt(colsEl.value)!==ansCols){colsEl.value=ansCols;needRebuild=true;}
-  if(needRebuild){
-    const src=rowsEl||colsEl;
-    if(src){const fn=(src.dataset.rebuild||'').replace(/\(\)$/,'');if(typeof window[fn]==='function')window[fn]();}
-    setTimeout(()=>fillOcrValues(prefix,rows),80);
-  }else{
-    fillOcrValues(prefix,rows);
+    // 检查是否识别到有效内容
+    if (!text || !text.trim()) {
+      throw new Error('未识别到有效内容');
+    }
+
+    // 解析矩阵文本
+    const matrix = parseMatrixText(text);
+    if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
+      throw new Error('无法解析为有效矩阵');
+    }
+
+    return matrix;
+  } catch (e) {
+    console.error('OCR 失败:', e);
+    setCamStatus('识别失败：' + e.message);
+    return null;
   }
+}
+function parseMatrixText(text) {
+  if (!text || typeof text !== 'string') return null;
+
+  const lines = text.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  const matrix = [];
+
+  for (let line of lines) {
+    // 使用正则提取数字（支持负号、小数点）
+    const nums = line.match(/[-+]?\d*\.?\d+/g);
+    if (nums) {
+      const row = nums.map(num => parseFloat(num));
+      matrix.push(row);
+    }
+  }
+
+  // 如果没有解析出任何行，返回空矩阵
+  if (matrix.length === 0) return null;
+
+  // 确保所有行长度一致
+  const firstRowLength = matrix[0].length;
+  for (let row of matrix) {
+    if (row.length !== firstRowLength) {
+      console.warn('矩阵行长度不一致，自动补零');
+      while (row.length < firstRowLength) row.push(0);
+    }
+  }
+
+  return matrix;
+}
+
+async function applyOcrMatrix(matrix) {
+  if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
+    setCamStatus('识别结果无效');
+    return;
+  }
+
+  const { rows, cols } = getDim('inverse'); // 假设是逆矩阵工具
+  const targetMatrix = Array.from({ length: rows }, (_, i) =>
+    Array.from({ length: cols }, (_, j) => F(0))
+  );
+
+  // 将识别的矩阵填入目标区域
+  for (let i = 0; i < Math.min(matrix.length, rows); i++) {
+    for (let j = 0; j < Math.min(matrix[i].length, cols); j++) {
+      const cell = document.getElementById(`inv-${i}-${j}`);
+      if (cell) {
+        cell.value = matrix[i][j];
+      }
+    }
+  }
+
+  // 触发计算
+  computeInverse();
 }
 
 function fillOcrValues(prefix,rows){
