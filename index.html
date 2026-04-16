@@ -19,6 +19,8 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"线性代数工具箱","description":"免费在线线性代数计算工具","applicationCategory":"EducationalApplication","operatingSystem":"Any","isAccessibleForFree":true,"author":[{"@type":"Person","name":"zczzzzz"},{"@type":"Person","name":"Genkaim"}],"offers":{"@type":"Offer","price":"0"}}
 </script>
+<!-- Tesseract.js OCR 静态加载（必须静态，动态加载会导致 worker 路径错误） -->
+<script src="https://unpkg.com/tesseract.js@4/dist/tesseract.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Serif+SC:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -411,19 +413,8 @@ font-weight:500;
 #np-cam-btn.mat-active{opacity:1;pointer-events:all;}
 #np-cam-btn:hover{background:rgba(114,116,54,.12);}
 #np-cam-btn.loading{opacity:.4;pointer-events:none;}
-#np-top-bar-div{
-  width:1px;background:var(--border2);
-  flex-shrink:0;margin:6px 0;
-}
-#numpad-close{
-  display:flex;align-items:center;justify-content:center;
-  width:34px;
-  background:transparent;border:none;
-  color:var(--text2);cursor:pointer;font-size:13px;
-  transition:background .15s;
-  flex-shrink:0;
-}
-#numpad-close:hover{background:rgba(224,82,82,.1);color:var(--red);}
+
+
 
 /* ===== NUMPAD ===== */
 #numpad{
@@ -482,6 +473,18 @@ font-weight:500;
   transition:transform .1s;
 }
 #cam-shoot-btn:active{transform:scale(.92)}
+#cam-crop-box{
+  position:absolute;
+  /* 手机：70vw 正方形；桌面：固定 400px */
+  width:min(70vw,400px);
+  height:min(70vw,400px);
+  top:50%;left:50%;
+  transform:translate(-50%,-55%);
+  border:2px solid rgba(255,255,255,.9);
+  border-radius:10px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.5);
+  pointer-events:none;
+}
 #cam-hint{
   position:absolute;top:16px;left:0;right:0;
   text-align:center;color:rgba(255,255,255,.7);
@@ -978,8 +981,7 @@ body.numpad-open #main{padding-bottom:270px;}
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     <span id="np-cam-label">拍照识别</span>
   </button>
-  <div id="np-top-bar-div"></div>
-  <div id="numpad-close" onclick="hideNumpad()">✕</div>
+
 </div>
 
 <!-- NUMPAD -->
@@ -1018,7 +1020,8 @@ body.numpad-open #main{padding-bottom:270px;}
     </button>
     <div style="width:64px"></div>
   </div>
-  <div id="cam-hint">对准矩阵拍摄</div>
+  <div id="cam-crop-box"></div>
+  <div id="cam-hint">将矩阵对准框内</div>
   <div id="cam-status"></div>
 </div>
 
@@ -3966,7 +3969,7 @@ function onCellFocus(el){
 function onCellBlur(el){el.classList.remove('focused');}
 
 // ============================================================
-// CAMERA / OCR — getUserMedia + local Tesseract.js
+// CAMERA / OCR — getUserMedia + Claude Vision API
 // ============================================================
 let ocrTargetCell=null;
 let camStream=null;
@@ -4014,14 +4017,17 @@ async function shootPhoto(){
   const canvas=document.getElementById('cam-canvas');
   if(!video.videoWidth){setCamStatus('相机未就绪，请稍候');return;}
 
-  // Capture frame
-  canvas.width=video.videoWidth;
-  canvas.height=video.videoHeight;
-  canvas.getContext('2d').drawImage(video,0,0);
-
   const btn=document.getElementById('cam-shoot-btn');
   btn.disabled=true;
-  setCamStatus('识别中…');
+
+  // 裁剪与正方形框对齐的中心区域
+  const vw=video.videoWidth, vh=video.videoHeight;
+  // 正方形边长 = min(视频宽*0.7, 视频高*0.7)
+  const side = Math.min(vw, vh) * 0.7;
+  const cx = (vw - side) / 2;
+  const cy = (vh - side) / 2 - vh * 0.05; // 与 CSS 的 -55% 对应，稍微偏上
+  canvas.width = side; canvas.height = side;
+  canvas.getContext('2d').drawImage(video, cx, cy, side, side, 0, 0, side, side);
 
   try{
     const matrix=await recognizeMatrix(canvas);
@@ -4030,152 +4036,106 @@ async function shootPhoto(){
       btn.disabled=false;
       return;
     }
+    await applyOcrMatrix(matrix);
     closeCamModal();
-    applyOcrMatrix(matrix);
   }catch(e){
     setCamStatus('识别失败：'+e.message);
     btn.disabled=false;
   }
 }
 
-// Preprocess canvas for handwriting OCR:
-// scale up, grayscale, adaptive threshold, slight dilation
-function preprocessCanvas(canvas) {
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
-
-  // 简单灰度化 + 二值化（可选）
-  for (let i = 0; i < data.length; i += 4) {
-    const avg = (data[i] + data[i+1] + data[i+2]) / 3;
-    data[i] = data[i+1] = data[i+2] = avg > 128 ? 255 : 0;
-  }
-
-  ctx.putImageData(imgData, 0, 0);
-  return canvas;
-}
-
-// Load Tesseract.js v4 on first use
-let _tWorker = null;
-
-async function ensureTesseract() {
-  if (_tWorker) return _tWorker;
-
-  // 等待 Tesseract 加载
-  if (typeof Tesseract === 'undefined') {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'js/tesseract.min.js';
-      script.onload = resolve;
-      script.onerror = () => reject(new Error('无法加载 Tesseract.js，请检查网络'));
-      document.head.appendChild(script);
-    });
-  }
-
-  try {
-    // v4 API：显式指定本地文件路径，避免走 CDN
-    // gzip:false → 直接加载 tessdata/eng.traineddata（非 .gz）
-    const worker = await Tesseract.createWorker('eng', 1, {
-      workerPath:  'js/worker.min.js',
-      langPath:    'tessdata',
-      corePath:    'js/tesseract-core-simd.wasm.js',
-      cacheMethod: 'none',
-      gzip:        false,
-      logger:      () => {}
-    });
-    await worker.setParameters({
-      tessedit_char_whitelist: '0123456789.-+/ ',   // 修正原来 9 写成 5 的笔误
-      tessedit_pageseg_mode:   '6',
-    });
-    _tWorker = worker;
-    return worker;
-  } catch (e) {
-    console.error('Tesseract 创建失败:', e);
-    throw new Error('识别引擎初始化失败');
-  }
-}
-
+// ============================================================
+// MATRIX OCR — Tesseract.js (全 CDN，无需本地文件)
+// ============================================================
+// ============================================================
+// MATRIX OCR — Tesseract.js 高层 API（无需手动管理 worker/路径）
+// ============================================================
 async function recognizeMatrix(canvas) {
+  setCamStatus('识别中…（首次需下载约 4 MB）');
   try {
-    const worker = await ensureTesseract();
-    setCamStatus('识别中…');
-    const processed = preprocessCanvas(canvas);
-    const { data: { text } } = await worker.recognize(processed);
+    // Tesseract.recognize() 高层 API：自动管理 worker，路径全走 CDN
+    const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+      logger: m => {
+        if (m.status === 'recognizing text')
+          setCamStatus('识别中… ' + Math.round(m.progress * 100) + '%');
+      },
+      tessedit_char_whitelist: '0123456789.-+',
+      tessedit_pageseg_mode: '6',
+    });
 
-    // 检查是否识别到有效内容
-    if (!text || !text.trim()) {
-      throw new Error('未识别到有效内容');
+    console.log('[OCR raw]', JSON.stringify(text));
+    if (!text || !text.trim()) throw new Error('未识别到内容');
+
+    // 清洗：把常见误识别符号替换掉
+    // | → 空格（矩阵括号线），[ ] ( ) → 空格，O→0，S→5，l/I→1
+    const cleaned = text
+      .replace(/[|\[\](){}]/g, ' ')
+      .replace(/O/g,'0').replace(/o(?=\d|\s)/g,'0')
+      .replace(/(?<=\d|\s)S(?=\s|$)/g,'5')
+      .replace(/(?<![\d.])l(?![\d.])/g,'1')
+      .replace(/(?<![\d.])I(?![\d.])/g,'1');
+
+    // 按行提取数字（支持负号，支持分数 /）
+    const lines = cleaned.split('\n').map(l => l.trim()).filter(Boolean);
+    const matrix = [];
+    for (const line of lines) {
+      // 匹配：可选负号 + 数字（含小数）
+      const nums = line.match(/-?\d+(?:\.\d+)?/g);
+      if (nums && nums.length > 0) matrix.push(nums.map(Number));
     }
 
-    // 解析矩阵文本
-    const matrix = parseMatrixText(text);
-    if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
-      throw new Error('无法解析为有效矩阵');
-    }
+    // 过滤明显噪声行（单个数字且所有行都多于1列时丢弃）
+    const validRows = matrix.filter(r => r.length > 0);
+    if (!validRows.length) throw new Error('无法解析为矩阵');
 
-    return matrix;
+    // 找众数列数作为标准列数
+    const colCounts = validRows.map(r => r.length);
+    const modeCol = colCounts.sort((a,b)=>
+      colCounts.filter(v=>v===b).length - colCounts.filter(v=>v===a).length
+    )[0];
+    // 只保留列数 == 众数 或 相差不超过1的行
+    const filtered = validRows.filter(r => Math.abs(r.length - modeCol) <= 1);
+    if (!filtered.length) throw new Error('无法解析为矩阵');
+
+    // 补齐到众数列数
+    filtered.forEach(r => { while (r.length < modeCol) r.push(0); r.splice(modeCol); });
+    return filtered;
+
   } catch (e) {
     console.error('OCR 失败:', e);
     setCamStatus('识别失败：' + e.message);
     return null;
   }
 }
-function parseMatrixText(text) {
-  if (!text || typeof text !== 'string') return null;
-
-  const lines = text.split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
-
-  const matrix = [];
-
-  for (let line of lines) {
-    // 使用正则提取数字（支持负号、小数点）
-    const nums = line.match(/[-+]?\d*\.?\d+/g);
-    if (nums) {
-      const row = nums.map(num => parseFloat(num));
-      matrix.push(row);
-    }
-  }
-
-  // 如果没有解析出任何行，返回空矩阵
-  if (matrix.length === 0) return null;
-
-  // 确保所有行长度一致
-  const firstRowLength = matrix[0].length;
-  for (let row of matrix) {
-    if (row.length !== firstRowLength) {
-      console.warn('矩阵行长度不一致，自动补零');
-      while (row.length < firstRowLength) row.push(0);
-    }
-  }
-
-  return matrix;
-}
-
 async function applyOcrMatrix(matrix) {
   if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
     setCamStatus('识别结果无效');
     return;
   }
 
-  const { rows, cols } = getDim('inverse'); // 假设是逆矩阵工具
-  const targetMatrix = Array.from({ length: rows }, (_, i) =>
-    Array.from({ length: cols }, (_, j) => F(0))
-  );
+  // 从 ocrTargetCell 的 id（格式：prefix_aI_J）提取 prefix
+  if (!ocrTargetCell) { setCamStatus('找不到目标单元格'); return; }
+  const idMatch = ocrTargetCell.id.match(/^(.+)_a\d+_\d+$/);
+  if (!idMatch) { setCamStatus('无法识别目标区域'); return; }
+  const prefix = idMatch[1];
 
-  // 将识别的矩阵填入目标区域
-  for (let i = 0; i < Math.min(matrix.length, rows); i++) {
-    for (let j = 0; j < Math.min(matrix[i].length, cols); j++) {
-      const cell = document.getElementById(`inv-${i}-${j}`);
-      if (cell) {
-        cell.value = matrix[i][j];
-      }
-    }
+  // 自动调整尺寸：更新 rows/cols 输入框并重建矩阵
+  const rowsEl = document.getElementById(`${prefix}-rows`);
+  const colsEl = document.getElementById(`${prefix}-cols`);
+  const newRows = matrix.length;
+  const newCols = matrix[0].length;
+  let needRebuild = false;
+  if (rowsEl && parseInt(rowsEl.value) !== newRows) { rowsEl.value = newRows; needRebuild = true; }
+  if (colsEl && parseInt(colsEl.value) !== newCols) { colsEl.value = newCols; needRebuild = true; }
+  if (needRebuild) {
+    // 触发 rebuild（调用 input 事件）
+    [rowsEl, colsEl].forEach(el => { if (el) el.dispatchEvent(new Event('input')); });
+    await new Promise(r => setTimeout(r, 80)); // 等待重建
   }
 
-  // 触发计算
-  computeInverse();
+  // 填值
+  fillOcrValues(prefix, matrix);
+  setCamStatus('识别完成 ✓');
 }
 
 function fillOcrValues(prefix,rows){
@@ -4219,12 +4179,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   navigate();
   window.addEventListener('hashchange',navigate);
   setupNumpadListeners();
-  document.addEventListener('click',e=>{
-    if(!e.target.closest('#numpad')&&
+  document.addEventListener('pointerdown',e=>{
+    if(!e.target.closest('#numpad-wrap')&&
        !e.target.classList.contains('mat-cell')&&
        !e.target.classList.contains('poly-coeff')&&
-       !e.target.classList.contains('scalar-input')){
-      // Only hide if click was outside numpad and inputs
+       !e.target.classList.contains('scalar-input')&&
+       !e.target.classList.contains('dim-cell')){
+      hideNumpad();
     }
   });
     // 定义需要禁用长按菜单的选择器
