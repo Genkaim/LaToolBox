@@ -20,7 +20,7 @@
 {"@context":"https://schema.org","@type":"WebApplication","name":"线性代数工具箱","description":"免费在线线性代数计算工具","applicationCategory":"EducationalApplication","operatingSystem":"Any","isAccessibleForFree":true,"author":[{"@type":"Person","name":"zczzzzz"},{"@type":"Person","name":"Genkaim"}],"offers":{"@type":"Offer","price":"0"}}
 </script>
 <!-- Tesseract.js OCR 静态加载（必须静态，动态加载会导致 worker 路径错误） -->
-<script src="https://unpkg.com/tesseract.js@4/dist/tesseract.min.js"></script>
+<script src="https://latool.genkaim.top/js/tesseract.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Serif+SC:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -4039,13 +4039,19 @@ async function openCamModal() {
 }
 
 function closeCamModal() {
-  const modal = document.getElementById('cam-modal');
-  modal.classList.remove('open');
+  const video = document.getElementById('cam-video');
+  const snapshot = document.getElementById('cam-snapshot');
 
-  if (camStream) {
-    camStream.getTracks().forEach(track => track.stop());
-    camStream = null;
+  // 恢复显示
+  video.style.display = 'block';
+  snapshot.style.display = 'none';
+
+  // 恢复视频流
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => track.enabled = true);
   }
+
+  document.getElementById('cam-modal').classList.remove('open');
 }
 
 function setCamStatus(msg){
@@ -4076,15 +4082,42 @@ function readMatrixFromUI() {
 async function shootPhoto() {
   const video = document.getElementById('cam-video');
   const canvas = document.getElementById('cam-canvas');
-  const ctx = canvas.getContext('2d');
-  const status = document.getElementById('cam-status');
+  const snapshot = document.getElementById('cam-snapshot');
 
   if (!video.videoWidth) {
-    status.innerText = '相机未就绪';
+    setCamStatus('相机未就绪，请稍候');
     return;
   }
 
-  status.innerText = '处理中...';
+  const ctx = canvas.getContext('2d');
+
+  // 设置 canvas 尺寸
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  // 1️⃣ 抓取当前帧
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // 2️⃣ 复制到 snapshot
+  snapshot.width = canvas.width;
+  snapshot.height = canvas.height;
+  const snapCtx = snapshot.getContext('2d');
+  snapCtx.drawImage(canvas, 0, 0);
+
+  // 3️⃣ 冻结画面（关键）
+  video.style.display = 'none';
+  snapshot.style.display = 'block';
+
+  // 4️⃣ （可选）暂停视频流（更彻底冻结）
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => track.enabled = false);
+  }
+
+  // 👉 后续 OCR / 处理流程继续用 canvas，不用改
+  setCamStatus('已捕捉画面，识别中...');
+
+const status = document.getElementById('cam-status');
+status.innerText = '识别中...';
 
   // ===== 1. 中心裁剪（对应取景框）=====
 // ===== 1. 精确裁剪（更小区域）=====
