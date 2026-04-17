@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="msvalidate.01" content="486BB61588C660A319F2B5BA0324342F" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>线性代数工具箱 | 行列式·逆矩阵·特征值·二次型·多项式</title>
 <meta name="description" content="免费在线线性代数计算工具，支持行列式、逆矩阵、矩阵的秩、特征值与特征向量、矩阵对角化、线性方程组求解、二次型化标准型、多项式带余除法等，全程展示逐步解题过程。">
@@ -898,7 +897,7 @@ body.numpad-open #main{padding-bottom:270px;}
   <button id="menu-toggle" onclick="toggleSidebar()">☰</button>
   <a id="gh-star-header" href="https://github.com/Genkaim/LaToolBox" target="_blank" rel="noopener" title="Star on GitHub">
     <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-    <span class="gh-star-label">Star</span>
+    <span class="gh-star-label">Star & Feedback</span>
   </a>
 </div>
 
@@ -909,7 +908,7 @@ body.numpad-open #main{padding-bottom:270px;}
 <div id="sidebar">
   <a id="gh-star-sidebar" href="https://github.com/Genkaim/LaToolBox" target="_blank" rel="noopener">
     <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-    <span>Star on GitHub</span>
+    <span>Star & Feedback</span>
   </a>
   <button class="hub-sidebar-btn" id="history-sidebar-btn" onclick="showHistory()">
     <span>🕘</span><span>历史记录</span>
@@ -980,7 +979,7 @@ body.numpad-open #main{padding-bottom:270px;}
 <div id="np-top-bar">
   <button id="np-cam-btn" onclick="npCamera()">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    <span id="np-cam-label">拍照识别</span>
+    <span id="np-cam-label">拍照识别 (测试中)</span>
   </button>
 
 </div>
@@ -1014,6 +1013,8 @@ body.numpad-open #main{padding-bottom:270px;}
 <div id="cam-modal">
   <video id="cam-video" autoplay playsinline muted></video>
   <canvas id="cam-canvas" style="display:none"></canvas>
+  <!-- 拍照后冻结帧显示在这里 -->
+  <canvas id="cam-snapshot" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"></canvas>
   <div id="cam-controls">
     <button id="cam-cancel-btn" onclick="closeCamModal()">取消</button>
     <button id="cam-shoot-btn" onclick="shootPhoto()">
@@ -1031,6 +1032,8 @@ body.numpad-open #main{padding-bottom:270px;}
 // ============================================================
 // FRACTION CLASS
 // ============================================================
+let imageSource = 'camera'; // 修复 ReferenceError
+let camStream = null;
 class Frac {
   constructor(n, d) {
     if (typeof n === 'string') {
@@ -1090,7 +1093,46 @@ function parseCell(s){
   if(s===''||s==='-')return F(0);
   try{return new Frac(s);}catch(e){return F(0);}
 }
+function fillMatrixToUI(matrix) {
+  const rows = matrix.length;
+  const cols = Math.max(...matrix.map(r => r.length));
 
+  // 设置维度
+  document.querySelectorAll('.dim-cell')[0].value = rows;
+  document.querySelectorAll('.dim-cell')[1].value = cols;
+
+  // 触发你已有的生成函数（如果有）
+  if (typeof generateMatrixInput === 'function') {
+    generateMatrixInput(rows, cols);
+  }
+
+  // 填值
+  const inputs = document.querySelectorAll('.mat-cell');
+
+  let index = 0;
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      if (inputs[index]) {
+        inputs[index].value = matrix[i][j] ?? '';
+      }
+      index++;
+    }
+  }
+}
+function parseMatrix(text) {
+  return text
+    .trim()
+    .split('\n')
+    .map(row =>
+      row
+        .trim()
+        .replace(/[^\d\- ]/g, '') // 清除杂字符
+        .split(/\s+/)
+        .filter(x => x !== '')
+        .map(Number)
+    )
+    .filter(row => row.length > 0);
+}
 // ============================================================
 // MATRIX UTILITIES
 // ============================================================
@@ -3973,41 +4015,37 @@ function onCellBlur(el){el.classList.remove('focused');}
 // CAMERA / OCR — getUserMedia + Claude Vision API
 // ============================================================
 let ocrTargetCell=null;
-let camStream=null;
-
 function npCamera(){
   if(!activeCell||!activeCell.classList.contains('mat-cell'))return;
   ocrTargetCell=activeCell;
   openCamModal();
 }
+async function openCamModal() {
+  const modal = document.getElementById('cam-modal');
+  const video = document.getElementById('cam-video');
 
-async function openCamModal(){
-  const modal=document.getElementById('cam-modal');
-  const video=document.getElementById('cam-video');
-  setCamStatus('');
   modal.classList.add('open');
-  try{
-    camStream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},
-      audio:false
+
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' },
+      audio: false
     });
-    video.srcObject=camStream;
-  }catch(e){
-    setCamStatus('无法访问相机：'+e.message);
+
+    video.srcObject = camStream;
+  } catch (e) {
+    alert('无法打开相机: ' + e.message);
   }
 }
 
-function closeCamModal(){
-  const modal=document.getElementById('cam-modal');
-  const video=document.getElementById('cam-video');
+function closeCamModal() {
+  const modal = document.getElementById('cam-modal');
   modal.classList.remove('open');
-  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
-  video.srcObject=null;
-  // 每次关闭都重置按钮，保证下次打开可用
-  const btn=document.getElementById('cam-shoot-btn');
-  if(btn) btn.disabled=false;
-  setCamStatus('');
-  if(ocrTargetCell){ocrTargetCell.focus();activeCell=ocrTargetCell;}
+
+  if (camStream) {
+    camStream.getTracks().forEach(track => track.stop());
+    camStream = null;
+  }
 }
 
 function setCamStatus(msg){
@@ -4015,54 +4053,92 @@ function setCamStatus(msg){
   el.textContent=msg;
   el.style.display=msg?'block':'none';
 }
+function readMatrixFromUI() {
+  const inputs = document.querySelectorAll('.mat-cell');
+  const dimCells = document.querySelectorAll('.dim-cell');
 
-async function shootPhoto(){
-  const video  = document.getElementById('cam-video');
-  const canvas = document.getElementById('cam-canvas');
-  const cropEl = document.getElementById('cam-crop-box');
-  if(!video.videoWidth){ setCamStatus('相机未就绪，请稍候'); return; }
+  const rows = parseInt(dimCells[0].value);
+  const cols = parseInt(dimCells[1].value);
 
-  const btn = document.getElementById('cam-shoot-btn');
-  btn.disabled = true;
+  let matrix = [];
+  let idx = 0;
 
-  // ── 把 CSS 框坐标精确映射到视频流像素 ──────────────────────────
-  // video 以 object-fit:cover 显示，需要算出缩放和偏移
-  const vRect = video.getBoundingClientRect();   // 显示区域（屏幕像素）
-  const cRect = cropEl.getBoundingClientRect();  // 裁剪框（屏幕像素）
-
-  const streamW = video.videoWidth, streamH = video.videoHeight;
-  const dispW   = vRect.width,      dispH   = vRect.height;
-
-  // object-fit:cover 的缩放比：取较大的那个方向
-  const scale = Math.max(streamW / dispW, streamH / dispH);
-
-  // 显示区中心在视频流中的位置
-  const offX = (streamW - dispW  * scale) / 2;
-  const offY = (streamH - dispH * scale) / 2;
-
-  // 框相对显示区的偏移 → 映射到视频流坐标
-  const sx = offX + (cRect.left - vRect.left) * scale;
-  const sy = offY + (cRect.top  - vRect.top)  * scale;
-  const sw = cRect.width  * scale;
-  const sh = cRect.height * scale;
-
-  // 输出正方形 canvas（放大 1.5x 提升 OCR 精度）
-  const OUT = 600;
-  canvas.width = canvas.height = OUT;
-  canvas.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, OUT, OUT);
-
-  try{
-    const matrix = await recognizeMatrix(canvas);
-    if(!matrix || !matrix.length){
-      setCamStatus('未识别到矩阵，请调整角度重试');
-      btn.disabled = false;
-      return;
+  for (let i = 0; i < rows; i++) {
+    let row = [];
+    for (let j = 0; j < cols; j++) {
+      row.push(parseCell(inputs[idx++].value));
     }
-    await applyOcrMatrix(matrix);
+    matrix.push(row);
+  }
+
+  return matrix;
+}
+async function shootPhoto() {
+  const video = document.getElementById('cam-video');
+  const canvas = document.getElementById('cam-canvas');
+  const ctx = canvas.getContext('2d');
+  const status = document.getElementById('cam-status');
+
+  if (!video.videoWidth) {
+    status.innerText = '相机未就绪';
+    return;
+  }
+
+  status.innerText = '处理中...';
+
+  // ===== 1. 中心裁剪（对应取景框）=====
+// ===== 1. 精确裁剪（更小区域）=====
+const vw = video.videoWidth;
+const vh = video.videoHeight;
+
+// 👉 改这里（关键！）
+const size = Math.min(vw, vh) * 0.5;  // 从0.7改成0.5
+const sx = (vw - size) / 2;
+const sy = (vh - size) / 2;
+
+// 👉 放大分辨率（关键！）
+canvas.width = 600;
+canvas.height = 600;
+
+ctx.drawImage(video, sx, sy, size, size, 0, 0, 600, 600);
+
+  // ===== 2. 图像预处理（二值化）=====
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = data[i]*0.3 + data[i+1]*0.59 + data[i+2]*0.11;
+    const val = gray > 140 ? 255 : 0;
+    data[i] = data[i+1] = data[i+2] = val;
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+
+  // ===== 3. OCR识别 =====
+  try {
+    const result = await Tesseract.recognize(
+      canvas,
+      'eng',
+      {
+        tessedit_char_whitelist: '0123456789-',
+        logger: m => console.log(m)
+      }
+    );
+
+    console.log('OCR原始结果：', result.data.text);
+
+    const matrix = parseMatrix(result.data.text);
+
+    console.log('解析矩阵：', matrix);
+
+    fillMatrixToUI(matrix);
+
+    status.innerText = '识别完成';
     closeCamModal();
-  }catch(e){
-    setCamStatus('识别失败：' + e.message);
-    btn.disabled = false;
+
+  } catch (e) {
+    console.error(e);
+    status.innerText = '识别失败';
   }
 }
 
@@ -4071,75 +4147,68 @@ async function shootPhoto(){
 // ============================================================
 
 // ── 图像预处理：自适应阈值 + 笔画膨胀 ──────────────────────────
-function preprocessHandwritten(srcCanvas) {
-  const W = 900, H = 900;   // 固定输出尺寸，足够高分辨率
-  const out = document.createElement('canvas');
-  out.width = W; out.height = H;
-  const ctx = out.getContext('2d');
-
-  // 1. 放大填满
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, W, H);
-  ctx.drawImage(srcCanvas, 0, 0, W, H);
-
-  const img = ctx.getImageData(0, 0, W, H);
-  const d = img.data;
-  const gray = new Uint8Array(W * H);
-
-  // 2. 转灰度
-  for (let i = 0; i < W * H; i++) {
-    gray[i] = d[i*4]*0.299 + d[i*4+1]*0.587 + d[i*4+2]*0.114;
-  }
-
-  // 3. 自适应阈值（局部均值，15×15 窗口，偏移 -10）
-  //    使用积分图加速
-  const R = 15;
-  const integral = new Float64Array((W+1) * (H+1));
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      integral[(y+1)*(W+1)+(x+1)] =
-        gray[y*W+x]
-        + integral[y*(W+1)+(x+1)]
-        + integral[(y+1)*(W+1)+x]
-        - integral[y*(W+1)+x];
-    }
-  }
-  const bin = new Uint8Array(W * H);
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const x1 = Math.max(0, x-R), y1 = Math.max(0, y-R);
-      const x2 = Math.min(W-1, x+R), y2 = Math.min(H-1, y+R);
-      const count = (x2-x1+1)*(y2-y1+1);
-      const sum = integral[(y2+1)*(W+1)+(x2+1)]
-                - integral[y1*(W+1)+(x2+1)]
-                - integral[(y2+1)*(W+1)+x1]
-                + integral[y1*(W+1)+x1];
-      const mean = sum / count;
-      bin[y*W+x] = gray[y*W+x] < mean - 8 ? 0 : 255;  // 0=墨迹，255=背景
-    }
-  }
-
-  // 4. 笔画膨胀（3×3，让细笔画变粗，利于识别）
-  const dilated = new Uint8Array(W * H).fill(255);
-  for (let y = 1; y < H-1; y++) {
-    for (let x = 1; x < W-1; x++) {
-      if (bin[y*W+x] === 0) {   // 有墨迹
-        for (let dy = -1; dy <= 1; dy++)
-          for (let dx = -1; dx <= 1; dx++)
-            dilated[(y+dy)*W+(x+dx)] = 0;
-      }
-    }
-  }
-
-  // 5. 写回 canvas（黑字白底）
-  for (let i = 0; i < W * H; i++) {
-    d[i*4] = d[i*4+1] = d[i*4+2] = dilated[i];
-    d[i*4+3] = 255;
-  }
-  ctx.putImageData(img, 0, 0);
-  return out;
+// ── 改进的预处理：强力黑白化 ──────────────────────────────────
+function preprocessHandwritten(canvas) {
+  const ctx = canvas.getContext('2d');
+  // 这里的滤镜能有效去除纸张细微纹理，加粗字迹
+  ctx.filter = 'contrast(1.4) brightness(1.1) grayscale(1)'; 
+  ctx.drawImage(canvas, 0, 0);
+  ctx.filter = 'none';
+  return canvas;
 }
 
+function readMatrixFromUI() {
+  const inputs = document.querySelectorAll('.mat-cell');
+  const dimCells = document.querySelectorAll('.dim-cell');
+
+  const rows = parseInt(dimCells[0].value);
+  const cols = parseInt(dimCells[1].value);
+
+  let matrix = [];
+  let idx = 0;
+
+  for (let i = 0; i < rows; i++) {
+    let row = [];
+    for (let j = 0; j < cols; j++) {
+      row.push(parseCell(inputs[idx++].value));
+    }
+    matrix.push(row);
+  }
+
+  return matrix;
+}function generateMatrixInput(rows, cols) {
+  const wrap = document.querySelector('.matrix-input-wrap');
+  wrap.innerHTML = '';
+
+  const table = document.createElement('table');
+  table.className = 'matrix-input-table';
+
+  for (let i = 0; i < rows; i++) {
+    const tr = document.createElement('tr');
+
+    for (let j = 0; j < cols; j++) {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+
+      input.className = 'mat-cell';
+      input.value = '0';
+
+      // 🔥 关键：必须用你原来的 handler
+      input.addEventListener('focus', showNumpadHandler);
+      input.addEventListener('click', showNumpadHandler);
+
+      // 防止系统键盘
+      input.setAttribute('readonly', true);
+
+      td.appendChild(input);
+      tr.appendChild(td);
+    }
+
+    table.appendChild(tr);
+  }
+
+  wrap.appendChild(table);
+}
 // ── 水平投影切行 ─────────────────────────────────────────────────
 function splitRows(canvas) {
   const ctx = canvas.getContext('2d');
@@ -4180,80 +4249,90 @@ function splitRows(canvas) {
 
 // ── 清洗 OCR 文本 → 数字数组 ────────────────────────────────────
 function parseOcrLine(text) {
-  // 常见手写误识别修正
   const cleaned = text
-    .replace(/[|[\](){}\\]/g, ' ')
-    .replace(/[Oo]/g, '0')
-    .replace(/[Il]/g, '1')
-    .replace(/[Ss]/g, '5')
-    .replace(/[Zz]/g, '2')
-    .replace(/[Gg]/g, '6')
-    .replace(/[Bb]/g, '8');
+    .replace(/[|\[\](){}]/g, ' ')
+    // 仅在不相邻数字/负号时才替换（避免破坏负数）
+    .replace(/(?<![\d\-])O(?![\d])/g, '0')
+    .replace(/(?<![\d\-])o(?![\d])/g, '0')
+    .replace(/(?<![\d\-])I(?![\d])/g, '1')
+    .replace(/(?<![\d\-])l(?![\d])/g, '1')
+    .replace(/(?<![\d\-])S(?![\d])/g, '5')
+    .replace(/(?<![\d\-])Z(?![\d])/g, '2');
   const nums = cleaned.match(/-?\d+(?:\.\d+)?/g);
   return nums ? nums.map(Number) : [];
 }
 
-// ── 主识别函数 ───────────────────────────────────────────────────
+// ── 极速识别函数（单次高精度） ────────────────────────────
 async function recognizeMatrix(canvas) {
-  setCamStatus('预处理中…');
+  // 1. 预处理 (确保变量名是 canvas)
   const processed = preprocessHandwritten(canvas);
 
-  setCamStatus('识别中…（首次需下载约 4 MB）');
   try {
-    const OPTS = {
+    const { data } = await Tesseract.recognize(processed, 'eng', {
       logger: m => {
         if (m.status === 'recognizing text')
-          setCamStatus('识别中… ' + Math.round(m.progress * 100) + '%');
+          setCamStatus('智能排列中… ' + Math.round(m.progress * 100) + '%');
       },
-      tessedit_char_whitelist: '0123456789.-+',
-      tessedit_pageseg_mode: '6',
-      tessedit_ocr_engine_mode: '1',   // LSTM only，对手写更好
-    };
+      tessedit_char_whitelist: '0123456789.-', 
+      tessedit_pageseg_mode: '11', // 识别散乱文本
+    });
 
-    // ① 尝试按行切割分别识别（更准）
-    const strips = splitRows(processed);
-    if (strips && strips.length >= 2) {
-      const matrix = [];
-      for (const strip of strips) {
-        const { data: { text } } = await Tesseract.recognize(strip, 'eng', {
-          ...OPTS, tessedit_pageseg_mode: '7',   // 单行模式
-        });
-        console.log('[OCR strip]', JSON.stringify(text));
-        const nums = parseOcrLine(text);
-        if (nums.length > 0) matrix.push(nums);
+    // 2. 提取并清理数据
+    let words = data.words.map(w => ({
+      text: w.text.replace(/[^0-9.-]/g, ''),
+      x: (w.bbox.x0 + w.bbox.x1) / 2,
+      y: (w.bbox.y0 + w.bbox.y1) / 2,
+      h: w.bbox.y1 - w.bbox.y0
+    })).filter(w => w.text !== '' && !isNaN(parseFloat(w.text)));
+
+    if (words.length === 0) throw new Error('未能识别到有效数字');
+
+    // 3. 动态行聚类 (解决维数不对的问题)
+    const rows = [];
+    words.sort((a, b) => a.y - b.y); // 按纵坐标排序
+
+    words.forEach(word => {
+      let added = false;
+      for (let row of rows) {
+        // 计算当前行所有数字的平均高度和平均Y
+        const avgY = row.reduce((s, w) => s + w.y, 0) / row.length;
+        const avgH = row.reduce((s, w) => s + w.h, 0) / row.length;
+        
+        // 【关键】容差判断：如果Y轴距离小于平均高度的 70%，归为同一行
+        if (Math.abs(word.y - avgY) < avgH * 0.7) {
+          row.push(word);
+          added = true;
+          break;
+        }
       }
-      if (matrix.length >= 2) {
-        const result = normalizeMatrix(matrix);
-        if (result) return result;
-      }
-    }
+      if (!added) rows.push([word]);
+    });
 
-    // ② 回退：整图识别
-    const { data: { text } } = await Tesseract.recognize(processed, 'eng', OPTS);
-    console.log('[OCR full]', JSON.stringify(text));
-    const lines = text.split('\n').map(l => parseOcrLine(l)).filter(r => r.length > 0);
-    const result = normalizeMatrix(lines);
-    if (result) return result;
+    // 4. 行内排序
+    rows.forEach(row => row.sort((a, b) => a.x - b.x));
 
-    throw new Error('无法解析为矩阵，请保持矩阵在框内并光线充足');
+    // 5. 矩阵标准化
+    const rawMatrix = rows.map(row => row.map(w => w.text));
+    return normalizeMatrix(rawMatrix);
+
   } catch (e) {
-    console.error('OCR 失败:', e);
-    setCamStatus('识别失败：' + e.message);
-    return null;
+    console.error(e);
+    throw e;
   }
 }
 
 // ── 对齐矩阵各行列数（众数列数） ────────────────────────────────
-function normalizeMatrix(rows) {
-  const valid = rows.filter(r => r.length > 0);
-  if (!valid.length) return null;
-  const freq = {};
-  valid.forEach(r => freq[r.length] = (freq[r.length]||0) + 1);
-  const modeCol = +Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
-  const filtered = valid.filter(r => Math.abs(r.length - modeCol) <= 1);
-  if (!filtered.length) return null;
-  filtered.forEach(r => { while(r.length < modeCol) r.push(0); r.length = modeCol; });
-  return filtered;
+function normalizeMatrix(matrix) {
+  const rows = matrix.length;
+  const cols = Math.max(...matrix.map(r => r.length));
+
+  for (let i = 0; i < rows; i++) {
+    while (matrix[i].length < cols) {
+      matrix[i].push(F0);
+    }
+  }
+
+  return matrix;
 }
 async function applyOcrMatrix(matrix) {
   if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
